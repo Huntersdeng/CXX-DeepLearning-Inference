@@ -1,7 +1,5 @@
 #include "onnx/onnx.h"
 
-using namespace cv;
-
 int TypeToSize(const ONNXTensorElementDataType& dataType) {
     switch (dataType) {
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:

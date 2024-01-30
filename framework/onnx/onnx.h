@@ -3,7 +3,6 @@
 #include <onnxruntime_cxx_api.h>
 
 #include <fstream>
-#include <opencv2/opencv.hpp>
 #include <string>
 
 #include "common/framework.h"
