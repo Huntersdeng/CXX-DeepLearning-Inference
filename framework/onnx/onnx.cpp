@@ -86,9 +86,6 @@ Status ONNXFramework::Init(Config config) {
             return Status::INIT_ERROR;
         }
 
-        float* temp_output_ptr = (float*)malloc(sizeof(float) * size);
-        assert(temp_output_ptr != nullptr);
-        temp_output_ptrs.push_back(temp_output_ptr);
     }
 
     std::cout << "Output: " << std::endl;
@@ -100,9 +97,6 @@ Status ONNXFramework::Init(Config config) {
 }
 
 ONNXFramework::~ONNXFramework() {
-    for (size_t i = 0; i < temp_output_ptrs.size(); i++) {
-        delete[] temp_output_ptrs[i];
-    }
     delete session;
 }
 
@@ -121,32 +115,26 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
             std::cout << "Cannot find " << input_name << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
         }
-        float const* blob = (float const*)input.at(input_name).data();
-        size_t input_tensor_size = binding.size;
-        std::vector<float> inputTensorValues(blob, blob + input_tensor_size);
 
         input_tensors.push_back(Ort::Value::CreateTensor<float>(
-            memory_info, inputTensorValues.data(), input_tensor_size, binding.dims.data(), binding.dims.size()));
+            memory_info, (float*)input.at(input_name).data(), binding.size, binding.dims.data(), binding.dims.size()));
     }
 
     std::vector<const char*> output_names(output_bindings.size());
+    std::vector<Ort::Value> output_tensors;
     for (size_t i = 0; i < output_bindings.size(); i++) {
+        const auto& binding = output_bindings[i];
         output_names[i] = output_bindings[i].name.c_str();
-    }
-
-    std::vector<Ort::Value> output_tensors =
-        this->session->Run(Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(), input_names.size(),
-                          output_names.data(), output_names.size());
-
-    for (size_t i = 0; i < output_tensors.size(); ++i) {
         if (output.find(output_names[i]) == output.end()) {
             std::cout << "Cannot find " << output_names[i] << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
         }
-        auto* raw_output = output_tensors[i].GetTensorData<float>();
-        size_t count = output_tensors[i].GetTensorTypeAndShapeInfo().GetElementCount();
-        output[output_names[i]].resize(sizeof(float) * count);
-        memcpy(output[output_names[i]].data(), raw_output, sizeof(float) * count);
+        output[output_names[i]].resize(sizeof(float) * binding.size);
+        output_tensors.push_back(Ort::Value::CreateTensor<float>(
+            memory_info, (float*)output[output_names[i]].data(), binding.size, binding.dims.data(), binding.dims.size()));
     }
+
+    this->session->Run(Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(), input_names.size(),
+                          output_names.data(), output_tensors.data(), output_names.size());
     return Status::SUCCESS;
 }

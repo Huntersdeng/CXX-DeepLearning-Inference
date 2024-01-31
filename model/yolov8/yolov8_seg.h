@@ -14,7 +14,7 @@ class YOLOv8Seg : public CvModel {
     void detect(const cv::Mat &image, std::vector<Object> &objs) override;
 
    protected:
-    void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs);
+    void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs) override;
 
    private:
     cv::Size m_input_size_ = {640, 640};
