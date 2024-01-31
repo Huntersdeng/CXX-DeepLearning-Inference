@@ -2,8 +2,8 @@
 
 #include "NvInferPlugin.h"
 #include <fstream>
-#include "framework/framework.h"
-#include "common.h"
+#include "common/framework.h"
+#include "common/common.h"
 
 class Logger : public nvinfer1::ILogger
 {
@@ -17,7 +17,7 @@ public:
     void log(nvinfer1::ILogger::Severity severity, const char *msg) noexcept override;
 };
 
-int type_to_size(const nvinfer1::DataType &dataType);
+int TypeToSize(const nvinfer1::DataType &dataType);
 
 class TensorRTFramework: public BaseFramework
 {

@@ -7,8 +7,13 @@ if(USE_TENSORRT)
   message(STATUS "CUDA Headers: \n${CUDA_INCLUDE_DIRS}\n")
 
   # TensorRT
-  set(TensorRT_INCLUDE_DIRS /usr/include/aarch64-linux-gnu)
-  set(TensorRT_LIBRARIES /usr/lib/aarch64-linux-gnu)
+  if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+    set(TensorRT_INCLUDE_DIRS /usr/include/aarch64-linux-gnu)
+    set(TensorRT_LIBRARIES /usr/lib/aarch64-linux-gnu)
+  else()
+    set(TensorRT_INCLUDE_DIRS /usr/include/x86_64-linux-gnu)
+    set(TensorRT_LIBRARIES /usr/lib/x86_64-linux-gnu)
+  endif()
 
   message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
   message(STATUS "TensorRT Headers: \n${TensorRT_INCLUDE_DIRS}\n")
