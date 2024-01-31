@@ -7,18 +7,21 @@
 
 using IOTensor = std::vector<uint8_t>;
 
-enum STATUS {
-    SUCCESS = 0,
-    INPUT_KEY_ERROR = -1,
-    OUTPUT_KEY_ERROR = -2
+enum Status { SUCCESS = 0, INIT_ERROR = -1, INFERENCE_ERROR = -2};
+
+struct Config {
+    std::string model_path;
+    std::map<std::string, int> input_len;
+    std::map<std::string, int> output_len;
 };
 
 class BaseFramework {
    public:
     BaseFramework() {}
     virtual ~BaseFramework() {}
-    virtual STATUS forward(const std::unordered_map<std::string, IOTensor> &input,
-                         std::unordered_map<std::string, IOTensor> &output) = 0;
+    virtual Status Init(Config config) = 0;
+    virtual Status forward(const std::unordered_map<std::string, IOTensor> &input,
+                           std::unordered_map<std::string, IOTensor> &output) = 0;
 
    protected:
     std::vector<Binding> input_bindings;

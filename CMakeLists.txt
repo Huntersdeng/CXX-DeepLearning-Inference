@@ -28,3 +28,4 @@ message(STATUS "OpenCV Headers: \n${OpenCV_INCLUDE_DIRS}\n")
 
 add_subdirectory(framework)
 add_subdirectory(model)
+add_subdirectory(test)

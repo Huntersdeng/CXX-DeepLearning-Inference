@@ -182,9 +182,8 @@ PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size &size)
     int left = int(std::round(dw - 0.1f));
     int right = int(std::round(dw + 0.1f));
 
-    cv::copyMakeBorder(tmp, tmp, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});
+    cv::copyMakeBorder(tmp, out, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});
 
-    cv::dnn::blobFromImage(tmp, out, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
     PreParam pparam;
     pparam.ratio = 1 / r;
     pparam.dw = dw;

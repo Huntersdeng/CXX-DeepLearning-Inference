@@ -11,13 +11,12 @@
 class CvModel
 {
 public:
-    explicit CvModel(const std::string &model_path);
+    explicit CvModel() {}; 
     virtual ~CvModel() {};
     virtual void detect(const cv::Mat &image, std::vector<Object> &objs) = 0;
 protected:
-    virtual void postprocess(const std::vector<void*> output, std::vector<Object> &objs) = 0;
+    virtual void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs) = 0;
 
-    cv::Size m_input_size_ = {640, 640};
-    PreParam pparam;
-    std::shared_ptr<BaseFramework> framework;
+    Config config_;
+    std::shared_ptr<BaseFramework> framework_;
 };

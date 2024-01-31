@@ -1,0 +1,8 @@
+model_name: "yolov8_seg"
+model_path: "/home/stardust/my_work/model-zoo-cxx/weights/yolov8s-seg.onnx"
+framework: "ONNX"
+input_size: [640,640]
+conf_thres: 0.25
+nms_thres: 0.65
+seg_size: [160, 160]
+seg_channels: 32

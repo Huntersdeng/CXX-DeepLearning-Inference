@@ -11,14 +11,15 @@ int TypeToSize(const ONNXTensorElementDataType &dataType);
 
 class ONNXFramework : public BaseFramework {
    public:
-    ONNXFramework(std::string model_path);
+    ONNXFramework() {}
     ~ONNXFramework();
-    STATUS forward(const std::unordered_map<std::string, IOTensor> &input,
+    Status Init(Config config) override;
+    Status forward(const std::unordered_map<std::string, IOTensor> &input,
                  std::unordered_map<std::string, IOTensor> &output) override;
 
-   private:
+   private: 
     Ort::Env env{nullptr};
     Ort::SessionOptions session_options{nullptr};
-    Ort::Session session{nullptr};
+    Ort::Session *session{nullptr};
     std::vector<float *> temp_output_ptrs;
 };
