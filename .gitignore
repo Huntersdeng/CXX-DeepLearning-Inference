@@ -2,3 +2,4 @@
 /build/*
 /weights/*
 /output
+__pycache__
