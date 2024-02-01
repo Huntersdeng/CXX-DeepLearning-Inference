@@ -1,5 +1,5 @@
 model_name: "yolov8_seg"
-model_path: "/home/hunter/Documents/model-zoo-cxx/weights/yolov8s-seg.onnx"
+model_path: "/home/stardust/my_work/model-zoo-cxx/weights/yolov8s-seg.onnx"
 framework: "ONNX"
 input_size: [640,640]
 conf_thres: 0.25

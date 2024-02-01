@@ -106,11 +106,10 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
     Ort::MemoryInfo memory_info =
         Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
-    std::vector<const char*> input_names(input_bindings.size());
-    for (size_t i = 0; i < input_bindings.size(); i++) {
-        const auto& binding = input_bindings[i];
+    std::vector<const char*> input_names;
+    for (const auto& binding : input_bindings) {
         const std::string input_name = binding.name;
-        input_names[i] = input_name.c_str();
+        input_names.emplace_back(input_name.c_str());
         if (input.find(input_name) == input.end()) {
             std::cout << "Cannot find " << input_name << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
@@ -120,18 +119,17 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
             memory_info, (float*)input.at(input_name).data(), binding.size, binding.dims.data(), binding.dims.size()));
     }
 
-    std::vector<const char*> output_names(output_bindings.size());
+    std::vector<const char*> output_names;
     std::vector<Ort::Value> output_tensors;
-    for (size_t i = 0; i < output_bindings.size(); i++) {
-        const auto& binding = output_bindings[i];
-        output_names[i] = output_bindings[i].name.c_str();
-        if (output.find(output_names[i]) == output.end()) {
-            std::cout << "Cannot find " << output_names[i] << " from the input tensors!" << std::endl;
+    for (const auto& binding : output_bindings) {
+        output_names.emplace_back(binding.name.c_str());
+        if (output.find(binding.name) == output.end()) {
+            std::cout << "Cannot find " << binding.name << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
         }
-        output[output_names[i]].resize(sizeof(float) * binding.size);
+        output[binding.name].resize(sizeof(float) * binding.size);
         output_tensors.push_back(Ort::Value::CreateTensor<float>(
-            memory_info, (float*)output[output_names[i]].data(), binding.size, binding.dims.data(), binding.dims.size()));
+            memory_info, (float*)output[binding.name].data(), binding.size, binding.dims.data(), binding.dims.size()));
     }
 
     this->session->Run(Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(), input_names.size(),
