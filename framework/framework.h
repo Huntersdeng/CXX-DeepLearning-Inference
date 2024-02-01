@@ -11,8 +11,8 @@ enum Status { SUCCESS = 0, INIT_ERROR = -1, INFERENCE_ERROR = -2};
 
 struct Config {
     std::string model_path;
-    std::map<std::string, size_t> input_len;
-    std::map<std::string, size_t> output_len;
+    std::map<std::string, int64_t> input_len;
+    std::map<std::string, int64_t> output_len;
 };
 
 class BaseFramework {

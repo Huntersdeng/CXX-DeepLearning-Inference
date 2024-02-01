@@ -5,7 +5,7 @@
 #include "model/yolov8/yolov8.h"
 
 void Yolov8Test() {
-    std::string current_path = "/home/stardust/my_work/model-zoo-cxx/";
+    std::string current_path = "/home/hunter/Documents/model-zoo-cxx/";
     std::string yaml_file = current_path + "config/yolov8.yaml";
 
     YOLOv8 model(yaml_file);

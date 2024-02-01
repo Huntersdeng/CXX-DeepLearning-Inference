@@ -12,6 +12,8 @@ int TypeToSize(const ONNXTensorElementDataType& dataType) {
             return 1;
         case ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL:
             return 1;
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
+            return 8;
         default:
             std::cout << "Unknown data type " << dataType << std::endl;
             return 4;
@@ -37,10 +39,14 @@ Status ONNXFramework::Init(Config config) {
         std::vector<int64_t> input_tensor_shape = input_type_info.GetTensorTypeAndShapeInfo().GetShape();
 
         Binding binding;
-        size_t size = 1;
+        int64_t size = 1;
         for (size_t j = 0; j < input_tensor_shape.size(); j++) {
             binding.dims.push_back(input_tensor_shape[j]);
             size *= input_tensor_shape[j];
+        }
+
+        if (size < 0) {
+            size = config.input_len[binding.name];
         }
 
         binding.size = size;
@@ -68,16 +74,25 @@ Status ONNXFramework::Init(Config config) {
         Ort::TypeInfo output_type_info = session->GetOutputTypeInfo(i);
         std::vector<int64_t> output_tensor_shape = output_type_info.GetTensorTypeAndShapeInfo().GetShape();
 
-        size_t size = 1;
+        Ort::AllocatedStringPtr output_name = session->GetOutputNameAllocated(i, allocator);
+        binding.name = output_name.get();
+
+        int64_t size = 1;
         for (size_t j = 0; j < output_tensor_shape.size(); j++) {
+            if (output_tensor_shape[j] == -1) {
+                output_tensor_shape[j] = 100;
+            }
             binding.dims.push_back(output_tensor_shape[j]);
             size *= output_tensor_shape[j];
         }
+
+        if (size < 0) {
+            size = config.output_len[binding.name];
+        }
+
         binding.size = size;
         binding.dsize = TypeToSize(output_type_info.GetTensorTypeAndShapeInfo().GetElementType());
 
-        Ort::AllocatedStringPtr output_name = session->GetOutputNameAllocated(i, allocator);
-        binding.name = output_name.get();
         output_bindings.push_back(binding);
 
         if (config.output_len[binding.name] != size) {
