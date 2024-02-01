@@ -1,11 +1,11 @@
 #pragma once
-#include "framework/common/common.h"
-#include "framework/common/framework.h"
+#include "common/common.h"
+#include "framework/framework.h"
 #include "framework/onnx/onnx.h"
 #include "framework/config.h"
 
 #ifdef USE_TENSORRT
-    #include "framework/tensorrt.h"
+    #include "framework/tensorrt/tensorrt.h"
 #endif
 
 class CvModel

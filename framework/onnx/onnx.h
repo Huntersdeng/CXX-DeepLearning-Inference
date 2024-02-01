@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 
-#include "common/framework.h"
+#include "framework/framework.h"
 
 int TypeToSize(const ONNXTensorElementDataType &dataType);
 

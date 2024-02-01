@@ -1,4 +1,4 @@
-#include "onnx/onnx.h"
+#include "framework/onnx/onnx.h"
 
 int TypeToSize(const ONNXTensorElementDataType& dataType) {
     switch (dataType) {
@@ -37,7 +37,7 @@ Status ONNXFramework::Init(Config config) {
         std::vector<int64_t> input_tensor_shape = input_type_info.GetTensorTypeAndShapeInfo().GetShape();
 
         Binding binding;
-        int size = 1;
+        size_t size = 1;
         for (size_t j = 0; j < input_tensor_shape.size(); j++) {
             binding.dims.push_back(input_tensor_shape[j]);
             size *= input_tensor_shape[j];
@@ -68,7 +68,7 @@ Status ONNXFramework::Init(Config config) {
         Ort::TypeInfo output_type_info = session->GetOutputTypeInfo(i);
         std::vector<int64_t> output_tensor_shape = output_type_info.GetTensorTypeAndShapeInfo().GetShape();
 
-        int size = 1;
+        size_t size = 1;
         for (size_t j = 0; j < output_tensor_shape.size(); j++) {
             binding.dims.push_back(output_tensor_shape[j]);
             size *= output_tensor_shape[j];

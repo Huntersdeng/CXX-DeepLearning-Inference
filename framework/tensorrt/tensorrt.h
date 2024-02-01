@@ -2,7 +2,7 @@
 
 #include "NvInferPlugin.h"
 #include <fstream>
-#include "common/framework.h"
+#include "framework/framework.h"
 #include "common/common.h"
 
 class Logger : public nvinfer1::ILogger
@@ -22,14 +22,16 @@ int TypeToSize(const nvinfer1::DataType &dataType);
 class TensorRTFramework: public BaseFramework
 {
 public:
-    explicit TensorRTFramework(const std::string &engine_file_path);
+    explicit TensorRTFramework() {}
     virtual ~TensorRTFramework();
-    void forward(void* input, std::vector<void *> &output) override;
+    Status Init(Config config) override;
+    Status forward(const std::unordered_map<std::string, IOTensor> &input,
+                           std::unordered_map<std::string, IOTensor> &output) override;
 
 private:
     void make_pipe(bool warmup = true);
-    void set_input(const cv::Mat &image);
-    void infer();
+    bool set_input(const std::unordered_map<std::string, IOTensor> &input);
+    bool infer();
 
     nvinfer1::ICudaEngine *engine = nullptr;
     nvinfer1::IRuntime *runtime = nullptr;
@@ -41,6 +43,8 @@ private:
     int num_outputs = 0;
     std::vector<void *> host_ptrs;
     std::vector<void *> device_ptrs;
+    std::unordered_map<std::string, int> in_index_;
+    std::unordered_map<std::string, int> out_index_;
 
-    det::PreParam pparam;
+    PreParam pparam;
 };

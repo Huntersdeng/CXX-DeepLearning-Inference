@@ -1,10 +1,10 @@
-#include "framework/common/framework.h"
-#include "framework/common/common.h"
+#include "framework/framework.h"
+#include "common/common.h"
 
 #include "model/yolov8/yolov8_seg.h"
 
 int main() {
-    std::string current_path = "/home/stardust/my_work/model-zoo-cxx/";
+    std::string current_path = "/home/jetson/Documents/model-zoo-cxx/";
     std::string yaml_file = current_path + "config/yolov8_seg.yaml";
 
     YOLOv8Seg model(yaml_file);

@@ -1,6 +1,7 @@
 model_name: "yolov8_seg"
-model_path: "/home/stardust/my_work/model-zoo-cxx/weights/yolov8s-seg.onnx"
-framework: "ONNX"
+model_path: "/home/jetson/Documents/model-zoo-cxx/weights/yolov8s-seg.engine"
+# framework: "ONNX"
+framework: "TensorRT"
 input_size: [640,640]
 conf_thres: 0.25
 nms_thres: 0.65

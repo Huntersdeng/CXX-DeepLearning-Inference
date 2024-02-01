@@ -1,6 +1,4 @@
-#include "framework/tensorrt.h"
-
-using namespace det;
+#include "framework/tensorrt/tensorrt.h"
 
 void Logger::log(nvinfer1::ILogger::Severity severity, const char *msg) noexcept {
     if (severity > reportableSeverity) {
@@ -26,15 +24,7 @@ void Logger::log(nvinfer1::ILogger::Severity severity, const char *msg) noexcept
     std::cerr << msg << std::endl;
 }
 
-int get_size_by_dims(const nvinfer1::Dims &dims) {
-    int size = 1;
-    for (int i = 0; i < dims.nbDims; i++) {
-        size *= dims.d[i];
-    }
-    return size;
-}
-
-int type_to_size(const nvinfer1::DataType &dataType) {
+int TypeToSize(const nvinfer1::DataType &dataType) {
     switch (dataType) {
         case nvinfer1::DataType::kFLOAT:
             return 4;
@@ -51,9 +41,9 @@ int type_to_size(const nvinfer1::DataType &dataType) {
     }
 }
 
-TensorRTFramework::TensorRTFramework(const std::string &engine_file_path) {
+Status TensorRTFramework::Init(Config config) {
     // 读取模型文件
-    std::ifstream file(engine_file_path, std::ios::binary);
+    std::ifstream file(config.model_path, std::ios::binary);
     assert(file.good());
     file.seekg(0, std::ios::end);
     auto size = file.tellg();
@@ -82,70 +72,104 @@ TensorRTFramework::TensorRTFramework(const std::string &engine_file_path) {
     // 创建cudaStream_t对象
     cudaStreamCreate(&this->stream);
 
-    this->num_bindings = this->engine->getNbBindings();
-    for (int i = 0; i < this->num_bindings; ++i) {
+    this->num_bindings = this->engine->getNbIOTensors();
+    for (int i = 0; i < this->num_bindings; ++i)
+    {
         Binding binding;
         nvinfer1::Dims dims;
-        nvinfer1::DataType dtype = this->engine->getBindingDataType(i);
-        std::string name = this->engine->getBindingName(i);
+        std::string name = this->engine->getIOTensorName(i);
+        nvinfer1::DataType dtype = this->engine->getTensorDataType(name.c_str());
         binding.name = name;
-        binding.dsize = type_to_size(dtype);
+        binding.dsize = TypeToSize(dtype);
 
-        bool IsInput = engine->bindingIsInput(i);
-        if (IsInput) {
+        nvinfer1::TensorIOMode io_mode = engine->getTensorIOMode(name.c_str());
+        if (io_mode == nvinfer1::TensorIOMode::kINPUT)
+        {
+            in_index_[name] = this->num_inputs;
             this->num_inputs += 1;
-            dims = this->engine->getProfileDimensions(i, 0, nvinfer1::OptProfileSelector::kMAX);
-            binding.size = get_size_by_dims(dims);
-            binding.dims = dims;
+            dims = this->engine->getProfileShape(name.c_str(), 0, nvinfer1::OptProfileSelector::kMAX);
+            binding.size = 1;
+            for (int i = 0; i < dims.nbDims; i++)
+            {
+                binding.size *= dims.d[i];
+                binding.dims.push_back(dims.d[i]);
+            }
+            if (config.input_len[binding.name] != binding.size) {
+                std::cout << "Input size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
+                        << config.input_len[binding.name] << "!=" << binding.size << ")" << std::endl;
+                return Status::INIT_ERROR;
+            }
             this->input_bindings.push_back(binding);
             // set max opt shape
-            this->context->setBindingDimensions(i, dims);
-        } else {
-            dims = this->context->getBindingDimensions(i);
-            binding.size = get_size_by_dims(dims);
-            binding.dims = dims;
+            this->context->setInputShape(name.c_str(), dims);
+            std::cout << "Input bind name: " << name << std::endl;
+        }
+        else if (io_mode == nvinfer1::TensorIOMode::kOUTPUT)
+        {
+            out_index_[name] = this->num_outputs;
+            dims = this->context->getTensorShape(name.c_str());
+            binding.size = 1;
+            for (int i = 0; i < dims.nbDims; i++)
+            {
+                binding.size *= dims.d[i];
+                binding.dims.push_back(dims.d[i]);
+            }
+            if (config.output_len[binding.name] != binding.size) {
+                std::cout << "Output size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
+                        << config.output_len[binding.name] << "!=" << binding.size << ")" << std::endl;
+                return Status::INIT_ERROR;
+            }
             this->output_bindings.push_back(binding);
             this->num_outputs += 1;
+            std::cout << "Output bind name: " << name << std::endl;
         }
     }
-
     make_pipe(true);
+    return Status::SUCCESS;
 }
 
 TensorRTFramework::~TensorRTFramework() {
-    std::cout << "Destruct tensorrt" << std::endl;
-    this->context->destroy();
-    this->engine->destroy();
-    this->runtime->destroy();
+    delete this->context;
+    delete this->engine;
+    delete this->runtime;
     cudaStreamDestroy(this->stream);
-    for (auto &ptr : this->device_ptrs) {
+    for (auto &ptr : this->device_ptrs)
+    {
         CHECK(cudaFree(ptr));
     }
 
-    for (auto &ptr : this->host_ptrs) {
+    for (auto &ptr : this->host_ptrs)
+    {
         CHECK(cudaFreeHost(ptr));
     }
 }
 
 void TensorRTFramework::make_pipe(bool warmup) {
-    for (auto &bindings : this->input_bindings) {
+    for (auto &bindings : this->input_bindings)
+    {
         void *d_ptr;
         CHECK(cudaMalloc(&d_ptr, bindings.size * bindings.dsize));
         this->device_ptrs.push_back(d_ptr);
+        this->context->setTensorAddress(bindings.name.c_str(), d_ptr);
     }
 
-    for (auto &bindings : this->output_bindings) {
+    for (auto &bindings : this->output_bindings)
+    {
         void *d_ptr, *h_ptr;
         size_t size = bindings.size * bindings.dsize;
         CHECK(cudaMalloc(&d_ptr, size));
         CHECK(cudaHostAlloc(&h_ptr, size, 0));
         this->device_ptrs.push_back(d_ptr);
         this->host_ptrs.push_back(h_ptr);
+        this->context->setTensorAddress(bindings.name.c_str(), d_ptr);
     }
 
-    if (warmup) {
-        for (int i = 0; i < 10; i++) {
-            for (auto &bindings : this->input_bindings) {
+    if (warmup)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (auto &bindings : this->input_bindings)
+            {
                 size_t size = bindings.size * bindings.dsize;
                 void *h_ptr = malloc(size);
                 memset(h_ptr, 0, size);
@@ -158,29 +182,44 @@ void TensorRTFramework::make_pipe(bool warmup) {
     }
 }
 
-void TensorRTFramework::set_input(const cv::Mat &image) {
-    auto &in_binding = this->input_bindings[0];
-    auto width = in_binding.dims.d[3];
-    auto height = in_binding.dims.d[2];
-
-    this->context->setBindingDimensions(0, nvinfer1::Dims{4, {1, 3, height, width}});
-
-    CHECK(cudaMemcpyAsync(this->device_ptrs[0], image.ptr<float>(), image.total() * image.elemSize(),
-                          cudaMemcpyHostToDevice, this->stream));
+bool TensorRTFramework::set_input(const std::unordered_map<std::string, IOTensor> &input) {
+    for (auto &kv : input) {
+        size_t idx = in_index_[kv.first];
+        auto& binding = this->input_bindings[idx];
+        if (input.find(binding.name) == input.end()) {
+            std::cout << "Cannot find " << binding.name << " from the input tensors!" << std::endl;
+            return false;
+        }
+        CHECK(cudaMemcpyAsync(
+            this->device_ptrs[idx], kv.second.data(), kv.second.size(), cudaMemcpyHostToDevice, this->stream));
+    }
+    return true;
 }
 
-void TensorRTFramework::infer() {
-    this->context->enqueueV2(this->device_ptrs.data(), this->stream, nullptr);
-    for (int i = 0; i < this->num_outputs; i++) {
+bool TensorRTFramework::infer() {
+    this->context->enqueueV3(this->stream);
+    for (int i = 0; i < this->num_outputs; i++)
+    {
         size_t osize = this->output_bindings[i].size * this->output_bindings[i].dsize;
-        CHECK(cudaMemcpyAsync(this->host_ptrs[i], this->device_ptrs[i + this->num_inputs], osize,
-                              cudaMemcpyDeviceToHost, this->stream));
+        CHECK(cudaMemcpyAsync(
+            this->host_ptrs[i], this->device_ptrs[i + this->num_inputs], osize, cudaMemcpyDeviceToHost, this->stream));
     }
     cudaStreamSynchronize(this->stream);
+    return true;
 }
 
-void TensorRTFramework::forward(const cv::Mat &image, std::vector<void *> &output) {
-    this->set_input(image);
-    this->infer();
-    output = this->host_ptrs;
+Status TensorRTFramework::forward(const std::unordered_map<std::string, IOTensor> &input,
+                           std::unordered_map<std::string, IOTensor> &output) {
+    if (!this->set_input(input)) {
+        return Status::INFERENCE_ERROR;
+    }
+    if (!this->infer()) {
+        return Status::INFERENCE_ERROR;
+    }
+    for (auto &kv : output) {
+        auto cur_idx = out_index_[kv.first];
+        const auto& binding = this->output_bindings[cur_idx];
+        memcpy(kv.second.data(), this->host_ptrs[cur_idx], binding.size * binding.dsize);
+    }
+    return Status::SUCCESS;
 }

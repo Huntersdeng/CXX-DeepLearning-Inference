@@ -1,5 +1,5 @@
-#include "framework/common/framework.h"
-#include "framework/common/common.h"
+#include "framework/framework.h"
+#include "common/common.h"
 
 #include "model/yolov8/yolov8_seg.h"
 #include <yaml-cpp/yaml.h>
