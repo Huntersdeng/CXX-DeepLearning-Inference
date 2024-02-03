@@ -133,26 +133,8 @@ class PostDetect(nn.Module):
             return TRT_NMS.apply(boxes.transpose(1, 2), scores.transpose(1, 2),
                                 self.iou_thres, self.conf_thres, self.topk)
         else:
-            boxes = boxes.transpose(1, 2)
-            max_output_boxes_per_class = torch.tensor([self.topk])
-            iou_thres = torch.tensor([self.iou_thres])
-            conf_thres = torch.tensor([self.conf_thres])
-            num_selected_indices = ORT_NMS.apply(boxes, scores, max_output_boxes_per_class, iou_thres, conf_thres)
-            
-            scores = scores.transpose(1, 2)
-            bbox_result = self.gather(boxes, num_selected_indices)
-            score_intermediate_result = self.gather(scores, num_selected_indices).max(axis=-1)
-            score_result = score_intermediate_result.values
-            classes_result = score_intermediate_result.indices.to(torch.int32)
-            num_dets = torch.tensor(score_result.shape[-1]).reshape([1,1]).to(torch.int32).clone().detach()
-
-            # bbox_result = F.pad(bbox_result, (0, 0, 0, self.topk - num_dets), "constant")
-            # score_result = F.pad(score_result, (0, self.topk - num_dets), "constant")
-            # classes_result = F.pad(classes_result, (0, self.topk - num_dets), "constant")
-            # bbox_result = torch.cat([bbox_result, torch.zeros([1, self.topk - num_dets, 4])], dim=1)
-            # score_result = torch.cat([score_result, torch.zeros([1, self.topk - num_dets])], dim=1)
-            # classes_result = torch.cat([classes_result, torch.zeros([1, self.topk - num_dets])], dim=1)
-            return (num_dets, bbox_result, score_result, classes_result)
+            scores, labels = scores.transpose(1, 2).max(dim=-1, keepdim=True)
+            return torch.cat([boxes.transpose(1, 2), scores, labels], dim=2)
         
     def gather(self, target, idx):
         pick_indices = idx[:, -1:].repeat(1, target.shape[2]).unsqueeze(0)
@@ -206,7 +188,7 @@ def parse_args():
     return args
 
 
-def main(args):
+def export_end2end(args):
     b = args.input_shape[0]
     YOLOv8 = YOLO(args.weights)
     model = YOLOv8.model.fuse().eval()
@@ -221,7 +203,7 @@ def main(args):
     fake_input = torch.randn(args.input_shape).to(args.device)
     for _ in range(2):
         model(fake_input)
-    save_path = args.weights.replace('.pt', '.onnx')
+    save_path = args.weights[:-3]+ '_end2end.onnx'
     with BytesIO() as f:
         torch.onnx.export(
             model,
@@ -245,6 +227,51 @@ def main(args):
             print(f'Simplifier failure: {e}')
     onnx.save(onnx_model, save_path)
     print(f'ONNX export success, saved as {save_path}')
+
+def export_normal(args):
+    b = args.input_shape[0]
+    YOLOv8 = YOLO(args.weights)
+    model = YOLOv8.model.fuse().eval()
+    for m in model.modules():
+        s = str(type(m))[6:-2].split('.')[-1]
+        if s == 'Detect':
+            setattr(m, '__class__', PostDetect)
+        elif s == 'C2f':
+            setattr(m, '__class__', C2f)
+        m.to(args.device)
+    model.to(args.device)
+    fake_input = torch.randn(args.input_shape).to(args.device)
+    for _ in range(2):
+        model(fake_input)
+    # save_path = args.weights.replace('.pt', '.onnx')
+    save_path = args.weights[:-3] + '_normal.onnx'
+    with BytesIO() as f:
+        torch.onnx.export(
+            model,
+            fake_input,
+            f,
+            opset_version=args.opset,
+            input_names=['images'],
+            output_names=['output'])
+        f.seek(0)
+        onnx_model = onnx.load(f)
+    onnx.checker.check_model(onnx_model)
+
+    if args.sim:
+        try:
+            onnx_model, check = onnxsim.simplify(onnx_model)
+            assert check, 'assert check failed'
+        except Exception as e:
+            print(f'Simplifier failure: {e}')
+    onnx.save(onnx_model, save_path)
+    print(f'ONNX export success, saved as {save_path}')
+
+def main(args):
+    if args.trt_nms:
+        export_end2end(args)
+    else:
+        export_normal(args)
+
 
 
 if __name__ == '__main__':
