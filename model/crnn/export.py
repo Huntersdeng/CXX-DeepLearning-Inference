@@ -11,9 +11,11 @@ except ImportError:
     onnxsim = None
 
 class CRNN(nn.Module):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, weights):
         super().__init__()
-        self.crnn = crnn.CRNN(crnn.CRNN(32, 1, 37, 256))
+        self.crnn = crnn.CRNN(32, 1, 37, 256)
+        print('loading pretrained model from %s' % weights)
+        self.crnn.load_state_dict(torch.load(weights))
 
     def forward(self, x):
         output = self.crnn(x)
@@ -50,9 +52,7 @@ def parse_args():
 def main(args):
     model_path = args.weights
 
-    model = CRNN()
-    print('loading pretrained model from %s' % model_path)
-    model.load_state_dict(torch.load(model_path))
+    model = CRNN(model_path)
 
     model.eval()
     model.to(args.device)
