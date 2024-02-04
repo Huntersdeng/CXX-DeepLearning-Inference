@@ -20,7 +20,7 @@ class CRNN(nn.Module):
     def forward(self, x):
         output = self.crnn(x)
         scores, labels = output.transpose(0,1).max(dim=-1, keepdim=True)
-        return labels
+        return labels.to(torch.float32)
 
 def parse_args():
     parser = argparse.ArgumentParser()

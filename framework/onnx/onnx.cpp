@@ -45,7 +45,7 @@ Status ONNXFramework::Init(Config config) {
             size *= input_tensor_shape[j];
         }
 
-        if (size < 0) {
+        if (size <= 0) {
             size = config.input_len[binding.name];
         }
 
@@ -79,14 +79,11 @@ Status ONNXFramework::Init(Config config) {
 
         int64_t size = 1;
         for (size_t j = 0; j < output_tensor_shape.size(); j++) {
-            if (output_tensor_shape[j] == -1) {
-                output_tensor_shape[j] = 100;
-            }
             binding.dims.push_back(output_tensor_shape[j]);
             size *= output_tensor_shape[j];
         }
 
-        if (size < 0) {
+        if (size <= 0) {
             size = config.output_len[binding.name];
         }
 

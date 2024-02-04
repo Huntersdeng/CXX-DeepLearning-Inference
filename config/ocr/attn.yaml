@@ -1,0 +1,8 @@
+model_name: "abinet"
+model_path: "../weights/ocr/best-train-abinet.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
+input_size: [128,32]  # (width, height)
+input_channel: 3
+alphabet: "abcdefghijklmnopqrstuvwxyz0123456789"
+output_size: 26
