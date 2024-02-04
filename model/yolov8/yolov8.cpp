@@ -1,28 +1,39 @@
 #include "model/yolov8/yolov8.h"
 #include <yaml-cpp/yaml.h>
 
-YOLOv8::YOLOv8(const std::string &model_path, const std::string framework_type, cv::Size input_size, int topk)
-    : m_input_size_(input_size), topk_(topk) {
+YOLOv8::YOLOv8(const std::string &model_path,
+                     const std::string framework_type,
+                     cv::Size input_size,
+                     float conf_thres,
+                     float nms_thres) : m_input_size_(input_size),
+                                         m_conf_thres_(conf_thres), m_nms_thres_(nms_thres) {
     config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
+    if (framework_type == "TensorRT")
+    {   
     #ifdef USE_TENSORRT
         framework_ = std::make_shared<TensorRTFramework>();
     #else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
+        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
         exit(0);
     #endif
-    } else if (framework_type == "ONNX") {
+    }
+    else if (framework_type == "ONNX")
+    {
         framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
+    }
+    else
+    {
+        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
         exit(0);
     }
 
+    m_grid_num_ = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        m_grid_num_ += (m_input_size_.width / strides[i]) * (m_input_size_.height / strides[i]);
+    }
     config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["num_dets"] = 1;
-    config_.output_len["bboxes"] = 4 * topk_;
-    config_.output_len["scores"] = topk_;
-    config_.output_len["labels"] = topk_;
+    config_.output_len["output"] = m_grid_num_ * 6;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -35,33 +46,41 @@ YOLOv8::YOLOv8(const std::string &yaml_file) {
 
     std::string model_path = yaml_node["model_path"].as<std::string>();
     std::string framework_type = yaml_node["framework"].as<std::string>();
+    
+    m_conf_thres_ = yaml_node["conf_thres"].as<float>();
+    m_nms_thres_ = yaml_node["nms_thres"].as<float>();
 
     std::vector<long> input_size = yaml_node["input_size"].as<std::vector<long>>();
     m_input_size_.width = input_size.at(0);
     m_input_size_.height = input_size.at(1);
 
-    topk_ = yaml_node["topk"].as<int>();
-
     config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
+    if (framework_type == "TensorRT")
+    {   
     #ifdef USE_TENSORRT
         framework_ = std::make_shared<TensorRTFramework>();
     #else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
+        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
         exit(0);
     #endif
-    } else if (framework_type == "ONNX") {
+    }
+    else if (framework_type == "ONNX")
+    {
         framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
+    }
+    else
+    {
+        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
         exit(0);
     }
 
+    m_grid_num_ = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        m_grid_num_ += (m_input_size_.width / strides[i]) * (m_input_size_.height / strides[i]);
+    }
     config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["num_dets"] = 1;
-    config_.output_len["bboxes"] = 4 * topk_;
-    config_.output_len["scores"] = topk_;
-    config_.output_len["labels"] = topk_;
+    config_.output_len["output"] = m_grid_num_ * 6;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -89,17 +108,8 @@ void YOLOv8::detect(const cv::Mat &image, std::vector<Object> &objs) {
     
 
     // 输出张量设置
-    output["num_dets"] = IOTensor();
-    output["num_dets"].resize(config_.output_len["num_dets"] * sizeof(int));
-
-    output["bboxes"] = IOTensor();
-    output["bboxes"].resize(config_.output_len["bboxes"] * sizeof(float));
-
-    output["scores"] = IOTensor();
-    output["scores"].resize(config_.output_len["scores"] * sizeof(float));
-
-    output["labels"] = IOTensor();
-    output["labels"].resize(config_.output_len["labels"] * sizeof(int));
+    output["output"] = IOTensor();
+    output["output"].resize(config_.output_len["output"] * sizeof(float));
 
     this->framework_->forward(input, output);
     postprocess(output, objs);
@@ -108,35 +118,58 @@ void YOLOv8::detect(const cv::Mat &image, std::vector<Object> &objs) {
 void YOLOv8::postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs)
 {
     objs.clear();
-    int *const num_dets = (int*)(output.at("num_dets").data());
-    float *const boxes = (float *)(output.at("boxes").data());
-    float *scores = (float *)(output.at("scores").data());
-    int *labels = (int*)(output.at("labels").data());
+    auto num_anchors = m_grid_num_;
+
     auto &dw = this->pparam_.dw;
     auto &dh = this->pparam_.dh;
     auto &width = this->pparam_.width;
     auto &height = this->pparam_.height;
     auto &ratio = this->pparam_.ratio;
-    for (int i = 0; i < num_dets[0]; i++)
+
+    std::vector<int> labels;
+    std::vector<float> scores;
+    std::vector<cv::Rect> bboxes;
+    std::vector<int> indices;
+
+    float * const outputs = (float *)output.at("output").data();
+
+    for (int i = 0; i < num_anchors; i++)
     {
-        float *ptr = boxes + i * 4;
+        float *ptr = outputs + i * 6;
+        float score = *(ptr + 4);
+        if (score > m_conf_thres_)
+        {
+            float x0 = *ptr++ - dw;
+            float y0 = *ptr++ - dh;
+            float x1 = *ptr++ - dw;
+            float y1 = *ptr++ - dh;
 
-        float x0 = *ptr++ - dw;
-        float y0 = *ptr++ - dh;
-        float x1 = *ptr++ - dw;
-        float y1 = *ptr - dh;
+            x0 = clamp(x0 * ratio, 0.f, width);
+            y0 = clamp(y0 * ratio, 0.f, height);
+            x1 = clamp(x1 * ratio, 0.f, width);
+            y1 = clamp(y1 * ratio, 0.f, height);
 
-        x0 = clamp(x0 * ratio, 0.f, width);
-        y0 = clamp(y0 * ratio, 0.f, height);
-        x1 = clamp(x1 * ratio, 0.f, width);
-        y1 = clamp(y1 * ratio, 0.f, height);
+            int label = *(++ptr);
+            labels.push_back(label);
+            scores.push_back(score);
+            bboxes.push_back(cv::Rect_<float>(x0, y0, x1 - x0, y1 - y0));
+        }
+    }
+    cv::dnn::NMSBoxes(bboxes, scores, m_conf_thres_, m_nms_thres_, indices);
+
+    int cnt = 0;
+    for (auto &i : indices)
+    {
+        if (cnt >= topk)
+        {
+            break;
+        }
+        cv::Rect tmp = bboxes[i];
         Object obj;
-        obj.rect.x = x0;
-        obj.rect.y = y0;
-        obj.rect.width = x1 - x0;
-        obj.rect.height = y1 - y0;
-        obj.prob = *(scores + i);
-        obj.label = *(labels + i);
+        obj.label = labels[i];
+        obj.rect = tmp;
+        obj.prob = scores[i];
         objs.push_back(obj);
+        cnt += 1;
     }
 }

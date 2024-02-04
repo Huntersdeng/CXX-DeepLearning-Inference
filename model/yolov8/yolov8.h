@@ -6,7 +6,8 @@
 class YOLOv8 : public CvModel {
    public:
     YOLOv8() = delete;
-    explicit YOLOv8(const std::string &model_path, const std::string framework_type, cv::Size input_size, int topk);
+    explicit YOLOv8(const std::string &model_path, const std::string framework_type, cv::Size input_size,
+                       float conf_thres, float iou_thres);
     explicit YOLOv8(const std::string &yaml_file);
     ~YOLOv8();
 
@@ -17,6 +18,10 @@ class YOLOv8 : public CvModel {
 
    private:
     cv::Size m_input_size_ = {640, 640};
-    int topk_ = 100;
+    float m_conf_thres_ = 0.25f;
+    float m_nms_thres_ = 0.65f;
+    int topk = 100;
+    int strides[3] = {8, 16, 32};
+    int m_grid_num_ = 8400;
     PreParam pparam_;
 };
