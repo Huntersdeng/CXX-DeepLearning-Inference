@@ -1,6 +1,0 @@
-model_name: "yolov8"
-model_path: "/home/hunter/Documents/model-zoo-cxx/weights/yolov8s.onnx"
-framework: "ONNX"
-# framework: "TensorRT"
-input_size: [640,640]
-topk: 100

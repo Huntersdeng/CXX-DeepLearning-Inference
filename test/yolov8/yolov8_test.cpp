@@ -2,17 +2,17 @@
 #include "common/common.h"
 
 #include "model/yolov8/yolov8_seg.h"
-#include "model/yolov8/yolov8.h"
+#include "model/yolov8/yolov8_e2e.h"
 
-void Yolov8Test() {
-    std::string current_path = "/home/hunter/Documents/model-zoo-cxx/";
-    std::string yaml_file = current_path + "config/yolov8.yaml";
+void Yolov8E2ETest() {
+    std::string current_path = "/home/jetson/Documents/model-zoo-cxx/";
+    std::string yaml_file = current_path + "config/yolov8_e2e.yaml";
 
-    YOLOv8 model(yaml_file);
+    YOLOv8E2E model(yaml_file);
 
     std::vector<std::string> imagePathList;
     std::string input_path = current_path + "test/image"; 
-    std::string output_path = current_path + "output/yolov8";
+    std::string output_path = current_path + "output/yolov8/end2end";
     cv::glob(input_path + "/*.jpg", imagePathList);
 
     cv::Mat image, input_image, res;
@@ -73,6 +73,6 @@ void Yolov8SegTest() {
 }
 
 int main() {
-    Yolov8Test();
+    Yolov8E2ETest();
     // Yolov8SegTest();
 }

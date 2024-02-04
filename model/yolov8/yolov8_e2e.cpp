@@ -109,7 +109,7 @@ void YOLOv8E2E::postprocess(const std::unordered_map<std::string, IOTensor> &out
 {
     objs.clear();
     int *const num_dets = (int*)(output.at("num_dets").data());
-    float *const boxes = (float *)(output.at("boxes").data());
+    float *const boxes = (float *)(output.at("bboxes").data());
     float *scores = (float *)(output.at("scores").data());
     int *labels = (int*)(output.at("labels").data());
     auto &dw = this->pparam_.dw;
