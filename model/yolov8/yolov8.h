@@ -1,9 +1,9 @@
 #pragma once
 #include <fstream>
 
-#include "model/base/cv_model.h"
+#include "model/base/detection_model.h"
 
-class YOLOv8 : public CvModel {
+class YOLOv8 : public DetectionModel {
    public:
     YOLOv8() = delete;
     explicit YOLOv8(const std::string &model_path, const std::string framework_type, cv::Size input_size,

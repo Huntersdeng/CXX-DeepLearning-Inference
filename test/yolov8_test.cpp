@@ -6,21 +6,21 @@
 #include "model/yolov8/yolov8.h"
 
 void Yolov8NormalTest() {
-    std::string current_path = "/home/stardust/my_work/model-zoo-cxx/";
-    std::string yaml_file = current_path + "config/yolov8_normal.yaml";
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/yolo/yolov8_normal.yaml";
 
     YOLOv8 model(yaml_file);
 
     std::vector<std::string> imagePathList;
-    std::string input_path = current_path + "test/image"; 
-    std::string output_path = current_path + "output/yolov8/normal";
+    std::string input_path = current_path + "test/image/detect"; 
+    std::string output_path = current_path + "output/yolo/normal";
     cv::glob(input_path + "/*.jpg", imagePathList);
 
     cv::Mat image, input_image, res;
     std::vector<Object> objs;
 
     std::vector<std::string> class_names;
-    ReadClassNames(current_path + "test/coco.txt", class_names);
+    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
 
     for (auto& path : imagePathList) {
         objs.clear();
@@ -40,21 +40,21 @@ void Yolov8NormalTest() {
 }
 
 void Yolov8E2ETest() {
-    std::string current_path = "/home/jetson/Documents/model-zoo-cxx/";
-    std::string yaml_file = current_path + "config/yolov8_e2e.yaml";
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/yolo/yolov8_e2e.yaml";
 
     YOLOv8E2E model(yaml_file);
 
     std::vector<std::string> imagePathList;
-    std::string input_path = current_path + "test/image"; 
-    std::string output_path = current_path + "output/yolov8/end2end";
+    std::string input_path = current_path + "test/image/detect"; 
+    std::string output_path = current_path + "output/yolo/end2end";
     cv::glob(input_path + "/*.jpg", imagePathList);
 
     cv::Mat image, input_image, res;
     std::vector<Object> objs;
 
     std::vector<std::string> class_names;
-    ReadClassNames(current_path + "test/coco.txt", class_names);
+    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
 
     for (auto& path : imagePathList) {
         objs.clear();
@@ -74,21 +74,21 @@ void Yolov8E2ETest() {
 }
 
 void Yolov8SegTest() {
-    std::string current_path = "/home/stardust/my_work/model-zoo-cxx/";
-    std::string yaml_file = current_path + "config/yolov8_seg.yaml";
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/yolo/yolov8_seg.yaml";
 
     YOLOv8Seg model(yaml_file);
 
     std::vector<std::string> imagePathList;
-    std::string input_path = current_path + "test/image"; 
-    std::string output_path = current_path + "output/yolov8_seg";
+    std::string input_path = current_path + "test/image/detect"; 
+    std::string output_path = current_path + "output/yolo/seg";
     cv::glob(input_path + "/*.jpg", imagePathList);
 
     cv::Mat image, input_image, res;
     std::vector<Object> objs;
 
     std::vector<std::string> class_names;
-    ReadClassNames(current_path + "test/coco.txt", class_names);
+    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
 
     for (auto& path : imagePathList) {
         objs.clear();

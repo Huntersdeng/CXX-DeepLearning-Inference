@@ -13,9 +13,6 @@ class CvModel
 public:
     explicit CvModel() {}; 
     virtual ~CvModel() {};
-    virtual void detect(const cv::Mat &image, std::vector<Object> &objs) = 0;
-protected:
-    virtual void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs) = 0;
 
     Config config_;
     std::shared_ptr<BaseFramework> framework_;

@@ -1,0 +1,7 @@
+model_name: "crnn"
+model_path: "../weights/crnn/crnn.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
+input_size: [32,100]
+alphabet: "0123456789abcdefghijklmnopqrstuvwxyz"
+output_size: 26

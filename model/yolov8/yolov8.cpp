@@ -97,7 +97,6 @@ void YOLOv8::detect(const cv::Mat &image, std::vector<Object> &objs) {
     std::unordered_map<std::string, IOTensor> input, output;
 
     // 输入tensor设置
-    // auto start = std::chrono::system_clock::now();
     cv::Mat nchw;
     this->pparam_ = Letterbox(image, nchw, m_input_size_);
     cv::dnn::blobFromImage(nchw, nchw, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
