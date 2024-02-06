@@ -1,4 +1,4 @@
-# CUDA ON WSL
+# CUDA ON Ubuntu
 
 ## 驱动安装
 

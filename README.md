@@ -15,4 +15,4 @@ A unified and extensible pipeline for deep learning model inference with C++.
   - [ ] dbnet
 
 ## Appendix
-[How to build TensorRT environment](https://github.com/Huntersdeng/cuda-on-wsl)
+[How to build TensorRT environment](/doc/environment/cuda-on-linux.md)
