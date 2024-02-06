@@ -22,7 +22,7 @@ class ONNXModel(nn.Module):
     def forward(self, x):
         logits, length = self.model(x)
         scores, labels = logits.max(dim=-1, keepdim=True)
-        return labels
+        return labels.to(torch.float32)
     
     def get_model(self, config, device):
         import importlib

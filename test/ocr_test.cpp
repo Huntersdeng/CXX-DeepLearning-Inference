@@ -18,7 +18,7 @@ void CtcModelTest() {
 
     for (auto& path : imagePathList) {
         auto start = std::chrono::system_clock::now();
-        image = cv::imread(path);
+        image = cv::imread(path, 0);
         std::string output = model.detect(image);
         std::cout << path << ": " << output << std::endl;
         auto end = std::chrono::system_clock::now();
@@ -51,6 +51,6 @@ void AttnModelTest() {
 }
 
 int main() {
-    CtcModelTest();
-    // AttnModelTest();
+    // CtcModelTest();
+    AttnModelTest();
 }

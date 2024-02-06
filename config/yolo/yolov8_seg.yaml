@@ -1,5 +1,5 @@
 model_name: "yolov8_seg"
-model_path: "/home/stardust/my_work/model-zoo-cxx/yolov8s-seg.onnx"
+model_path: "../weights/yolo/yolov8s-seg.onnx"
 framework: "ONNX"
 # framework: "TensorRT"
 input_size: [640,640]
