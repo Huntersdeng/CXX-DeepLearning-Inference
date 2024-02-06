@@ -51,6 +51,6 @@ void AttnModelTest() {
 }
 
 int main() {
-    // CtcModelTest();
-    AttnModelTest();
+    CtcModelTest();
+    // AttnModelTest();
 }

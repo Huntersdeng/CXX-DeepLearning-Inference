@@ -1,7 +1,7 @@
 model_name: "yolov8"
-model_path: "../weights/yolo/yolov8s_normal.onnx"
-framework: "ONNX"
-# framework: "TensorRT"
+model_path: "../weights/yolo/yolov8s_normal.engine"
+# framework: "ONNX"
+framework: "TensorRT"
 input_size: [640,640]
 conf_thres: 0.25
 nms_thres: 0.65
