@@ -132,19 +132,21 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
     }
 
     std::vector<const char*> output_names;
-    std::vector<Ort::Value> output_tensors;
     for (const auto& binding : output_bindings) {
         output_names.emplace_back(binding.name.c_str());
         if (output.find(binding.name) == output.end()) {
             std::cout << "Cannot find " << binding.name << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
         }
-        output[binding.name].resize(sizeof(float) * binding.size);
-        output_tensors.push_back(Ort::Value::CreateTensor<float>(
-            memory_info, (float*)output[binding.name].data(), binding.size, binding.dims.data(), binding.dims.size()));
     }
 
-    this->session->Run(Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(), input_names.size(),
-                          output_names.data(), output_tensors.data(), output_names.size());
+    std::vector<Ort::Value> output_tensors = this->session->Run(Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(), input_names.size(),
+                          output_names.data(), output_names.size());
+    
+    for (size_t i = 0; i < output_tensors.size(); ++i){
+        size_t element_size = TypeToSize(output_tensors[i].GetTensorTypeAndShapeInfo().GetElementType());
+        size_t count = output_tensors[i].GetTensorTypeAndShapeInfo().GetElementCount();
+        memcpy(output[output_names[i]].data(), output_tensors[i].GetTensorData<uint8_t>(), element_size * count);
+    }
     return Status::SUCCESS;
 }

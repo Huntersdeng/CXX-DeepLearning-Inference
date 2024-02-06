@@ -106,7 +106,8 @@ class PostDetect(nn.Module):
     iou_thres = 0.65
     conf_thres = 0.25
     topk = 100
-    use_trt_nms = True
+    use_trt_nms = False
+    use_onnx_nms = False
 
     def __init__(self, *args, **kwargs):
         super().__init__()
@@ -132,6 +133,21 @@ class PostDetect(nn.Module):
         if self.use_trt_nms:
             return TRT_NMS.apply(boxes.transpose(1, 2), scores.transpose(1, 2),
                                 self.iou_thres, self.conf_thres, self.topk)
+        elif self.use_onnx_nms:
+            boxes = boxes.transpose(1, 2)
+            max_output_boxes_per_class = torch.tensor([self.topk])
+            iou_thres = torch.tensor([self.iou_thres])
+            conf_thres = torch.tensor([self.conf_thres])
+            num_selected_indices = ORT_NMS.apply(boxes, scores, max_output_boxes_per_class, iou_thres, conf_thres)
+            
+            scores = scores.transpose(1, 2)
+            bbox_result = self.gather(boxes, num_selected_indices)
+            score_intermediate_result = self.gather(scores, num_selected_indices).max(axis=-1)
+            score_result = score_intermediate_result.values
+            classes_result = score_intermediate_result.indices.to(torch.int32)
+            num_dets = torch.tensor(score_result.shape[-1]).reshape([1,1]).to(torch.int32).clone().detach()
+
+            return (num_dets, bbox_result, score_result, classes_result)
         else:
             scores, labels = scores.transpose(1, 2).max(dim=-1, keepdim=True)
             return torch.cat([boxes.transpose(1, 2), scores, labels], dim=2)
@@ -150,7 +166,11 @@ def parse_args():
     parser.add_argument('--trt-nms',
                         action='store_true',
                         required=False,
-                        help='True: Use TensorRT Efficient NMS plugin, False: use onnx NMS ops')
+                        help='Use TensorRT Efficient NMS plugins')
+    parser.add_argument('--onnx-nms',
+                        action='store_true',
+                        required=False,
+                        help='Use onnx NMS ops')
     parser.add_argument('--iou-thres',
                         type=float,
                         default=0.65,
@@ -185,6 +205,7 @@ def parse_args():
     PostDetect.iou_thres = args.iou_thres
     PostDetect.topk = args.topk
     PostDetect.use_trt_nms = args.trt_nms
+    PostDetect.use_onnx_nms = args.onnx_nms
     return args
 
 
@@ -267,7 +288,7 @@ def export_normal(args):
     print(f'ONNX export success, saved as {save_path}')
 
 def main(args):
-    if args.trt_nms:
+    if args.trt_nms or args.onnx_nms:
         export_end2end(args)
     else:
         export_normal(args)
