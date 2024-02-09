@@ -36,6 +36,10 @@ void DrawObjectsMasks(const cv::Mat &image,
                         const std::vector<std::vector<unsigned int>> &COLORS,
                         const std::vector<std::vector<unsigned int>> &MASK_COLORS);
 
+void DrawBoxes(const cv::Mat &image,
+                  cv::Mat &res,
+                  const std::vector<Object> &objs);
+
 float Iou(cv::Rect bb_test, cv::Rect bb_gt);
 
 void Nms(std::vector<Object> &res, float nms_thresh);
@@ -47,5 +51,6 @@ public:
     virtual ~DetectionModel() {};
     virtual void detect(const cv::Mat &image, std::vector<Object> &objs) = 0;
 protected:
+    virtual void preprocess(const cv::Mat &input_image, cv::Mat &output_image) = 0;
     virtual void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs) = 0;
 };

@@ -57,6 +57,7 @@ else()
 endif()
 
 set(ONNXRUNTIME_LIBS /usr/lib/libonnxruntime.so)
+set(Clipper_LIBS /usr/lib/x86_64-linux-gnu/libpolyclipping.so)
 
 add_subdirectory(framework)
 add_subdirectory(model)

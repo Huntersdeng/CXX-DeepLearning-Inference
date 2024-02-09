@@ -23,6 +23,7 @@ OcrModel::OcrModel(const std::string &model_path, const std::string framework_ty
 
     config_.input_len["images"] = m_input_size_.height * m_input_size_.width * m_input_channel_;
     config_.output_len["output"] = m_output_length_;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -61,6 +62,7 @@ OcrModel::OcrModel(const std::string &yaml_file) {
 
     config_.input_len["images"] = m_input_size_.height * m_input_size_.width * m_input_channel_;
     config_.output_len["output"] = m_output_length_;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;

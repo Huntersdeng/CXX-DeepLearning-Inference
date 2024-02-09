@@ -3,15 +3,16 @@
 
 #include "model/ocr/ctc.h"
 #include "model/ocr/attention.h"
+#include "model/ocr/dbnet.h"
 
 void CtcModelTest() {
     std::string current_path = "../";
-    std::string yaml_file = current_path + "config/ocr/ctc.yaml";
+    std::string yaml_file = current_path + "config/ocr/rec/ctc.yaml";
 
     CtcModel model(yaml_file);
 
     std::vector<std::string> imagePathList;
-    std::string input_path = current_path + "test/image/ocr"; 
+    std::string input_path = current_path + "test/image/ocr/rec"; 
     cv::glob(input_path + "/*.png", imagePathList);
 
     cv::Mat image, res;
@@ -29,12 +30,12 @@ void CtcModelTest() {
 
 void AttnModelTest() {
     std::string current_path = "../";
-    std::string yaml_file = current_path + "config/ocr/attn.yaml";
+    std::string yaml_file = current_path + "config/ocr/rec/attn.yaml";
 
     AttnModel model(yaml_file);
 
     std::vector<std::string> imagePathList;
-    std::string input_path = current_path + "test/image/ocr"; 
+    std::string input_path = current_path + "test/image/ocr/rec"; 
     cv::glob(input_path + "/*.png", imagePathList);
 
     cv::Mat image, res;
@@ -50,7 +51,39 @@ void AttnModelTest() {
     }
 }
 
+void DBNetTest() {
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/ocr/det/dbnet.yaml";
+
+    DBNet model(yaml_file);
+
+    std::vector<std::string> imagePathList;
+    std::string input_path = current_path + "test/image/ocr/det"; 
+    std::string output_path = current_path + "output/dbnet";
+    cv::glob(input_path + "/*.png", imagePathList);
+
+    cv::Mat image, input_image, res;
+    std::vector<Object> objs;
+
+    for (auto& path : imagePathList) {
+        objs.clear();
+        std::cout << path << std::endl;
+        image = cv::imread(path);
+        cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
+        model.detect(input_image, objs);
+        DrawBoxes(image, res, objs);
+
+        std::string::size_type iPos = path.find_last_of('/') + 1;
+	    std::string filename = path.substr(iPos, path.length() - iPos);
+        std::string out_path = output_path + "/" + filename;
+        // cv::imshow("image", res);
+        // cv::waitKey(0);
+        cv::imwrite(out_path, res);
+    }
+}
+
 int main() {
     // CtcModelTest();
-    AttnModelTest();
+    // AttnModelTest();
+    DBNetTest();
 }

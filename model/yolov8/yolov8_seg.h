@@ -14,6 +14,7 @@ class YOLOv8Seg : public DetectionModel {
     void detect(const cv::Mat &image, std::vector<Object> &objs) override;
 
    protected:
+    void preprocess(const cv::Mat &input_image, cv::Mat &output_image) override;
     void postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs) override;
 
    private:

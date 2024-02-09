@@ -21,6 +21,7 @@ int TypeToSize(const ONNXTensorElementDataType& dataType) {
 }
 
 Status ONNXFramework::Init(Config config) {
+    is_dynamic = config.is_dynamic;
     env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "ONNX_DETECTION");
     session_options = Ort::SessionOptions();
 
@@ -33,6 +34,7 @@ Status ONNXFramework::Init(Config config) {
     session = new Ort::Session(env, config.model_path.c_str(), session_options);
 #endif
 
+    std::cout << "Input: " << std::endl;
     int input_num = session->GetInputCount();
     for (int i = 0; i < input_num; i++) {
         Ort::TypeInfo input_type_info = session->GetInputTypeInfo(i);
@@ -55,18 +57,20 @@ Status ONNXFramework::Init(Config config) {
         Ort::AllocatedStringPtr input_name = session->GetInputNameAllocated(i, allocator);
         binding.name = input_name.get();
         input_bindings.push_back(binding);
-        if (config.input_len[binding.name] != size) {
+        std::cout << binding.name << ": [";
+        for (size_t j = 0; j < input_tensor_shape.size(); j++) {
+            std::cout << input_tensor_shape[j] << ",";
+        }
+        std::cout << "]" << std::endl;
+
+        if (!is_dynamic && config.input_len[binding.name] != size) {
             std::cout << "Input size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                       << config.input_len[binding.name] << "!=" << size << ")" << std::endl;
             return Status::INIT_ERROR;
         }
     }
 
-    std::cout << "Input: " << std::endl;
-    for (const auto& binding : input_bindings) {
-        std::cout << binding.name << ": " << binding.size << std::endl;
-    }
-
+    std::cout << "Output: " << std::endl;
     int output_num = session->GetOutputCount();
     for (int i = 0; i < output_num; i++) {
         Binding binding;
@@ -92,7 +96,13 @@ Status ONNXFramework::Init(Config config) {
 
         output_bindings.push_back(binding);
 
-        if (config.output_len[binding.name] != size) {
+        std::cout << binding.name << ": [";
+        for (size_t j = 0; j < output_tensor_shape.size(); j++) {
+            std::cout << output_tensor_shape[j] << ",";
+        }
+        std::cout << "]" << std::endl;
+
+        if (!is_dynamic && config.output_len[binding.name] != size) {
             std::cout << "Output size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                       << config.output_len[binding.name] << "!=" << size << ")" << std::endl;
             return Status::INIT_ERROR;
@@ -100,7 +110,6 @@ Status ONNXFramework::Init(Config config) {
 
     }
 
-    std::cout << "Output: " << std::endl;
     for (const auto& binding : output_bindings) {
         std::cout << binding.name << ": " << binding.size << std::endl;
     }
@@ -127,8 +136,18 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
             return Status::INFERENCE_ERROR;
         }
 
-        input_tensors.push_back(Ort::Value::CreateTensor<float>(
-            memory_info, (float*)input.at(input_name).data(), binding.size, binding.dims.data(), binding.dims.size()));
+        if (!is_dynamic) {
+            input_tensors.push_back(Ort::Value::CreateTensor<float>(
+                memory_info, (float*)input.at(input_name).data(), binding.size, binding.dims.data(), binding.dims.size()));
+        } else {
+            size_t size = 1;
+            for (size_t i = 0; i < input.at(input_name).shape.size(); i++) {
+                size *= input.at(input_name).shape[i];
+            }
+            input_tensors.push_back(Ort::Value::CreateTensor<float>(
+                memory_info, (float*)input.at(input_name).data(), size, input.at(input_name).shape.data(), input.at(input_name).shape.size()));
+        }
+        
     }
 
     std::vector<const char*> output_names;
@@ -146,7 +165,9 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
     for (size_t i = 0; i < output_tensors.size(); ++i){
         size_t element_size = TypeToSize(output_tensors[i].GetTensorTypeAndShapeInfo().GetElementType());
         size_t count = output_tensors[i].GetTensorTypeAndShapeInfo().GetElementCount();
+        output[output_names[i]].resize(element_size * count);
         memcpy(output[output_names[i]].data(), output_tensors[i].GetTensorData<uint8_t>(), element_size * count);
+        output[output_names[i]].shape = output_tensors[i].GetTensorTypeAndShapeInfo().GetShape();
     }
     return Status::SUCCESS;
 }

@@ -23,6 +23,7 @@ YOLOv8E2E::YOLOv8E2E(const std::string &model_path, const std::string framework_
     config_.output_len["bboxes"] = 4 * topk_;
     config_.output_len["scores"] = topk_;
     config_.output_len["labels"] = topk_;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -62,6 +63,7 @@ YOLOv8E2E::YOLOv8E2E(const std::string &yaml_file) {
     config_.output_len["bboxes"] = 4 * topk_;
     config_.output_len["scores"] = topk_;
     config_.output_len["labels"] = topk_;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -74,14 +76,19 @@ YOLOv8E2E::~YOLOv8E2E()
     std::cout << "Destruct yolov8" << std::endl;
 }
 
+void YOLOv8E2E::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
+    cv::Mat mask;
+    this->pparam_ = Letterbox(input_image, mask, m_input_size_);
+    cv::dnn::blobFromImage(mask, output_image, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
+}
+
 void YOLOv8E2E::detect(const cv::Mat &image, std::vector<Object> &objs) {
     std::unordered_map<std::string, IOTensor> input, output;
 
     // 输入tensor设置
     // auto start = std::chrono::system_clock::now();
     cv::Mat nchw;
-    this->pparam_ = Letterbox(image, nchw, m_input_size_);
-    cv::dnn::blobFromImage(nchw, nchw, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
+    preprocess(image, nchw);
 
     input["images"] = IOTensor();
     input["images"].resize(nchw.total() * nchw.elemSize());

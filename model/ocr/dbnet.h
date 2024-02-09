@@ -3,13 +3,12 @@
 
 #include "model/base/detection_model.h"
 
-class YOLOv8 : public DetectionModel {
+class DBNet : public DetectionModel {
    public:
-    YOLOv8() = delete;
-    explicit YOLOv8(const std::string &model_path, const std::string framework_type, cv::Size input_size,
-                       float conf_thres, float iou_thres);
-    explicit YOLOv8(const std::string &yaml_file);
-    ~YOLOv8();
+    DBNet() = delete;
+    explicit DBNet(const std::string &model_path, const std::string framework_type, cv::Size input_size, float box_thres);
+    explicit DBNet(const std::string &yaml_file);
+    ~DBNet();
 
     void detect(const cv::Mat &image, std::vector<Object> &objs) override;
 
@@ -19,10 +18,9 @@ class YOLOv8 : public DetectionModel {
 
    private:
     cv::Size m_input_size_ = {640, 640};
-    float m_conf_thres_ = 0.25f;
-    float m_nms_thres_ = 0.65f;
-    int topk = 100;
-    int strides[3] = {8, 16, 32};
-    int m_grid_num_ = 8400;
+    float m_box_thres_ = 0.3f;
+    float m_expand_ratio_ = 1.5f;
+    float m_score_thres_ = 0.3f;
+    int m_box_min_size_ = 5;
     PreParam pparam_;
 };

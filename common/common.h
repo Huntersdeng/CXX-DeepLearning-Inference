@@ -35,3 +35,5 @@ bool IsFile(const std::string &path);
 bool IsFolder(const std::string &path);
 
 PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size &size);
+
+PreParam paddimg(const cv::Mat &image, cv::Mat &out, int shortsize = 960);

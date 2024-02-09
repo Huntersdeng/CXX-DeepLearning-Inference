@@ -86,6 +86,17 @@ void DrawObjectsMasks(const cv::Mat &image,
     cv::addWeighted(res, 0.5, mask, 0.8, 1, res);
 }
 
+void DrawBoxes(const cv::Mat &image,
+                  cv::Mat &res,
+                  const std::vector<Object> &objs) {
+    res = image.clone();
+    for (auto &obj : objs)
+    {
+        cv::Scalar color = cv::Scalar(COLORS[obj.label][0], COLORS[obj.label][1], COLORS[obj.label][2]);
+        cv::rectangle(res, obj.rect, color, 2);
+    }
+}
+
 float Iou(cv::Rect bb_test, cv::Rect bb_gt)
 {
     float in = (bb_test & bb_gt).area();

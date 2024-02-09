@@ -64,3 +64,35 @@ PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size &size)
     pparam.width = width;
     return pparam;
 }
+
+PreParam paddimg(const cv::Mat &image, cv::Mat &out, int shortsize) {
+    int w = image.cols;
+    int h = image.rows;
+    float scale = 1.f;
+    if (w < h) {
+        scale = (float)shortsize / w;
+        h = scale * h;
+        w = shortsize;
+    }
+    else {
+        scale = (float)shortsize / h;
+        w = scale * w;
+        h = shortsize;
+    }
+
+    if (h % 32 != 0) {
+        h = (h / 32 + 1) * 32;
+    }
+    if (w % 32 != 0) {
+        w = (w / 32 + 1) * 32;
+    }
+
+    cv::resize(image, out, cv::Size(w, h));
+    PreParam pparam;
+    pparam.ratio = 1 / scale;
+    pparam.dw = 0;
+    pparam.dh = 0;
+    pparam.height = image.rows;
+    pparam.width = image.cols;
+    return pparam;
+}

@@ -34,6 +34,7 @@ YOLOv8::YOLOv8(const std::string &model_path,
     }
     config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
     config_.output_len["output"] = m_grid_num_ * 6;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -81,6 +82,7 @@ YOLOv8::YOLOv8(const std::string &yaml_file) {
     }
     config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
     config_.output_len["output"] = m_grid_num_ * 6;
+    config_.is_dynamic = false;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -93,13 +95,18 @@ YOLOv8::~YOLOv8()
     std::cout << "Destruct yolov8" << std::endl;
 }
 
+void YOLOv8::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
+    cv::Mat mask;
+    this->pparam_ = Letterbox(input_image, mask, m_input_size_);
+    cv::dnn::blobFromImage(mask, output_image, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
+}
+
 void YOLOv8::detect(const cv::Mat &image, std::vector<Object> &objs) {
     std::unordered_map<std::string, IOTensor> input, output;
 
     // 输入tensor设置
     cv::Mat nchw;
-    this->pparam_ = Letterbox(image, nchw, m_input_size_);
-    cv::dnn::blobFromImage(nchw, nchw, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
+    preprocess(image, nchw);
 
     input["images"] = IOTensor();
     input["images"].resize(nchw.total() * nchw.elemSize());

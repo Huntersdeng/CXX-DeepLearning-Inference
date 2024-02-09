@@ -72,6 +72,8 @@ Status TensorRTFramework::Init(Config config) {
     // 创建cudaStream_t对象
     cudaStreamCreate(&this->stream);
 
+    this->is_dynamic = config.is_dynamic;
+
     this->num_bindings = this->engine->getNbIOTensors();
     for (int i = 0; i < this->num_bindings; ++i)
     {
@@ -94,7 +96,7 @@ Status TensorRTFramework::Init(Config config) {
                 binding.size *= dims.d[i];
                 binding.dims.push_back(dims.d[i]);
             }
-            if (config.input_len[binding.name] != binding.size) {
+            if (!is_dynamic && config.input_len[binding.name] != binding.size) {
                 std::cout << "Input size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                         << config.input_len[binding.name] << "!=" << binding.size << ")" << std::endl;
                 return Status::INIT_ERROR;
@@ -114,7 +116,7 @@ Status TensorRTFramework::Init(Config config) {
                 binding.size *= dims.d[i];
                 binding.dims.push_back(dims.d[i]);
             }
-            if (config.output_len[binding.name] != binding.size) {
+            if (!is_dynamic && config.output_len[binding.name] != binding.size) {
                 std::cout << "Output size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                         << config.output_len[binding.name] << "!=" << binding.size << ")" << std::endl;
                 return Status::INIT_ERROR;
@@ -190,6 +192,10 @@ bool TensorRTFramework::set_input(const std::unordered_map<std::string, IOTensor
             std::cout << "Cannot find " << binding.name << " from the input tensors!" << std::endl;
             return false;
         }
+        if (is_dynamic) {
+            std::vector<int64_t> shape = input.at(binding.name).shape;
+            context->setInputShape(binding.name.c_str(), nvinfer1::Dims4(shape[0], shape[1], shape[2], shape[3]));
+        }
         CHECK(cudaMemcpyAsync(
             this->device_ptrs[idx], kv.second.data(), kv.second.size(), cudaMemcpyHostToDevice, this->stream));
     }
@@ -219,7 +225,7 @@ Status TensorRTFramework::forward(const std::unordered_map<std::string, IOTensor
     for (auto &kv : output) {
         auto cur_idx = out_index_[kv.first];
         const auto& binding = this->output_bindings[cur_idx];
-        memcpy(kv.second.data(), this->host_ptrs[cur_idx], binding.size * binding.dsize);
+        memcpy(kv.second.data(), this->host_ptrs[cur_idx], kv.second.size());
     }
     return Status::SUCCESS;
 }

@@ -1,0 +1,6 @@
+model_name: "dbnet"
+model_path: "../weights/ocr/det/DBNet.engine"
+# framework: "ONNX"
+framework: "TensorRT"
+input_size: [640,640]  # (width, height)
+box_thres: 0.5

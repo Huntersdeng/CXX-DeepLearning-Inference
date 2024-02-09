@@ -7,8 +7,6 @@
     #include "framework/tensorrt/tensorrt.h"
 #endif
 
-void ReadOCRLabel(const std::string& filename);
-
 class OcrModel : public CvModel
 {
 public:
