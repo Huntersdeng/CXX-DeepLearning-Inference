@@ -35,7 +35,7 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=OFF
 make
 ```
 #### Config
-config/ocr/ctc.yaml for crnn model
+config/ocr/rec/ctc.yaml for crnn model
 ```
 model_name: "crnn"
 model_path: "../weights/ocr/crnn.onnx"
@@ -68,7 +68,7 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=ON
 make
 ```
 #### Config
-config/ocr/ctc.yaml for crnn model
+config/ocr/rec/ctc.yaml for crnn model
 ```
 model_name: "crnn"
 model_path: "../weights/ocr/crnn.engine"

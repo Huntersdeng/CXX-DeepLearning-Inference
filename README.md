@@ -12,7 +12,7 @@ A unified and extensible pipeline for deep learning model inference with C++.
 - ocr
   - [x] crnn
   - [x] abinet
-  - [ ] dbnet
+  - [x] dbnet
 
 ## Appendix
 [How to build TensorRT environment](/doc/environment/cuda-on-linux.md)

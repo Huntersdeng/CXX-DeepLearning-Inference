@@ -35,7 +35,7 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=OFF
 make
 ```
 #### Config
-config/ocr/attn.yaml for abinet model
+config/ocr/rec/attn.yaml for abinet model
 ```
 model_name: "abinet"
 model_path: "../weights/ocr/best-train-abinet.onnx"
@@ -58,7 +58,7 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=ON
 make
 ```
 #### Config
-config/ocr/attn.yaml for abinet model
+config/ocr/rec/attn.yaml for abinet model
 ```
 model_name: "abinet"
 model_path: "../weights/ocr/best-train-abinet.engine"
