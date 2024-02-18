@@ -23,7 +23,7 @@ bool IsFolder(const std::string &path)
     return (stat(path.c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
 }
 
-PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size &size)
+PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size size)
 {
     const float inp_h = size.height;
     const float inp_w = size.width;

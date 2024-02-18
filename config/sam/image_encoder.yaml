@@ -1,0 +1,4 @@
+model_name: "sam_image_encoder"
+model_path: "../weights/sam/resnet18_image_encoder.onnx"
+framework: "ONNX"
+# framework: "TensorRT"

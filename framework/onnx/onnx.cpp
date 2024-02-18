@@ -130,7 +130,7 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
     std::vector<const char*> input_names;
     for (const auto& binding : input_bindings) {
         const std::string input_name = binding.name;
-        input_names.emplace_back(input_name.c_str());
+        input_names.emplace_back(binding.name.c_str());
         if (input.find(input_name) == input.end()) {
             std::cout << "Cannot find " << input_name << " from the input tensors!" << std::endl;
             return Status::INFERENCE_ERROR;
@@ -166,8 +166,14 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
         size_t element_size = TypeToSize(output_tensors[i].GetTensorTypeAndShapeInfo().GetElementType());
         size_t count = output_tensors[i].GetTensorTypeAndShapeInfo().GetElementCount();
         output[output_names[i]].resize(element_size * count);
+        uint8_t *ptr = output[output_names[i]].data();
         memcpy(output[output_names[i]].data(), output_tensors[i].GetTensorData<uint8_t>(), element_size * count);
         output[output_names[i]].shape = output_tensors[i].GetTensorTypeAndShapeInfo().GetShape();
+        std::cout << "Shape of " << output_names[i] << ": [";
+        for (int64_t j : output[output_names[i]].shape) {
+            std::cout << j << ",";
+        }
+        std::cout << "]" << std::endl;
     }
     return Status::SUCCESS;
 }

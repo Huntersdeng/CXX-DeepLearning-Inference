@@ -1,0 +1,4 @@
+model_name: "sam_mask_decoder"
+model_path: "../weights/sam/mobile_sam_mask_decoder.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
