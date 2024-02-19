@@ -15,11 +15,11 @@ int main() {
     image = cv::imread("../test/image/sam/dogs.jpg");
     cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
 
-    sam.set_image(input_image);
+    sam.setImage(input_image);
 
-    std::vector<cv::Point2i> points;
-    points.push_back(cv::Point2i(100, 100));
-    points.push_back(cv::Point2i(850, 759));
+    std::vector<cv::Point2f> points;
+    points.push_back(cv::Point2f(100, 100));
+    points.push_back(cv::Point2f(850, 759));
     std::vector<float> labels{2, 3};
 
     cv::Mat output_mask;

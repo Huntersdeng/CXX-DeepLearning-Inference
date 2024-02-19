@@ -76,7 +76,7 @@ MaskDecoder::MaskDecoder(const std::string &yaml_file) : features_shape{1, 256, 
 
 MaskDecoder::~MaskDecoder() { std::cout << "Destruct sam mask decoder" << std::endl; }
 
-void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2i> &image_point_coords,
+void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2f> &image_point_coords,
                           const std::vector<float> &image_point_labels, cv::Mat& low_res_mask) {
     std::unordered_map<std::string, IOTensor> input, output;
 
@@ -121,7 +121,7 @@ void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2
 
     this->framework_->forward(input, output);
 
-    low_res_mask = cv::Mat(4, 256 * 256, CV_32F, (float *)output.at("low_res_masks").data());
-    float* ptr = low_res_mask.ptr<float>();
-    low_res_mask = low_res_mask.reshape(4, {256, 256});
+    cv::Mat mask;
+    mask = cv::Mat(4, 256 * 256, CV_32F, (float *)output.at("low_res_masks").data());
+    low_res_mask = mask.reshape(4, {256, 256});
 }

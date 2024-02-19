@@ -6,8 +6,9 @@ class SAM {
     SAM() = delete;
     SAM(const std::string& encoder_cfg, const std::string& decoder_cfg);
     ~SAM() {};
-    void set_image(const cv::Mat &image);
-    void predict(const std::vector<cv::Point2i> &image_point_coords, const std::vector<float> &image_point_labels, cv::Mat &output_mask);
+    void setImage(const cv::Mat &image);
+    void predict(const std::vector<cv::Point2f> &image_point_coords, const std::vector<float> &image_point_labels, cv::Mat &output_mask);
+    void preprocessPoints(const std::vector<cv::Point2f> &input_points, std::vector<cv::Point2f> &output_points);
 
    private:
     std::shared_ptr<ImageEncoder> encoder_;
