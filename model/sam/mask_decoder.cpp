@@ -58,7 +58,7 @@ MaskDecoder::MaskDecoder(const std::string &yaml_file) : features_shape{1, 256, 
     }
 
     config_.input_len["image_embeddings"] =
-        3 * features_shape[0] * features_shape[1] * features_shape[2] * features_shape[3];
+        features_shape[0] * features_shape[1] * features_shape[2] * features_shape[3];
     config_.input_len["point_coords"] = 10 * 2;
     config_.input_len["point_labels"] = 10;
     config_.input_len["mask_input"] = 1 * 1 * 256 * 256;
@@ -82,7 +82,7 @@ void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2
 
     input["image_embeddings"] = IOTensor();
     input["image_embeddings"].shape = features_shape;
-    input["image_embeddings"].resize(config_.input_len["image_embeddings"]);
+    input["image_embeddings"].resize(config_.input_len["image_embeddings"] * sizeof(float));
     memcpy(input["image_embeddings"].data(), features.data(), input["image_embeddings"].size());
 
     input["point_coords"] = IOTensor();
@@ -121,7 +121,5 @@ void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2
 
     this->framework_->forward(input, output);
 
-    cv::Mat mask;
-    mask = cv::Mat(4, 256 * 256, CV_32F, (float *)output.at("low_res_masks").data());
-    low_res_mask = mask.reshape(4, {256, 256});
+    low_res_mask = cv::Mat(256, 256, CV_32F, (float *)output.at("low_res_masks").data());
 }

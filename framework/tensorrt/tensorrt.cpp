@@ -194,7 +194,12 @@ bool TensorRTFramework::set_input(const std::unordered_map<std::string, IOTensor
         }
         if (is_dynamic) {
             std::vector<int64_t> shape = input.at(binding.name).shape;
-            context->setInputShape(binding.name.c_str(), nvinfer1::Dims4(shape[0], shape[1], shape[2], shape[3]));
+            nvinfer1::Dims dim;
+            dim.nbDims = shape.size();
+            for (size_t i = 0; i < dim.nbDims; i++) {
+                dim.d[i] = shape[i];
+            }
+            context->setInputShape(binding.name.c_str(), dim);
         }
         CHECK(cudaMemcpyAsync(
             this->device_ptrs[idx], kv.second.data(), kv.second.size(), cudaMemcpyHostToDevice, this->stream));

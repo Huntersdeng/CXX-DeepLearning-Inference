@@ -28,8 +28,8 @@ int main() {
     cv::Mat res = image.clone();
     cv::Mat mask = image.clone();
 
-    // cv::rectangle(res, cv::Rect(100, 100, 750, 659), {0, 0, 255}, -1);
-    // mask.setTo(cv::Scalar(255, 56, 56), output_mask);
-    // cv::addWeighted(res, 0.5, mask, 0.8, 1, res);
-    cv::imwrite("../output/sam/dogs.jpg", output_mask);
+    cv::rectangle(res, cv::Rect(100, 100, 750, 659), {0, 0, 255}, -1);
+    mask.setTo(cv::Scalar(255, 56, 56), output_mask);
+    cv::addWeighted(res, 0.5, mask, 0.8, 1, res);
+    cv::imwrite("../output/sam/dogs.jpg", res);
 }
