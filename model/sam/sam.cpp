@@ -32,7 +32,6 @@ void SAM::predict(const std::vector<cv::Point2f> &image_point_coords, const std:
 
     cv::Rect roi(scale_dw, scale_dh, seg_w - 2 * scale_dw, seg_h - 2 * scale_dh);
 
-    cv::imwrite("../output/sam/mask.jpg", low_res_mask > 0);
     cv::Mat mask = low_res_mask(roi);
     mask = mask > 0.0f;
     cv::resize(mask, output_mask, cv::Size((int)width, (int)height), cv::INTER_LINEAR);
