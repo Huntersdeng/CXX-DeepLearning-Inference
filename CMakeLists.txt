@@ -36,11 +36,9 @@ if(USE_TENSORRT)
   if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
     set(TensorRT_INCLUDE_DIRS /usr/include/aarch64-linux-gnu)
     set(TensorRT_LIBRARIES /usr/lib/aarch64-linux-gnu)
-    set(Clipper_LIBS /usr/lib/aarch64-linux-gnu/libpolyclipping.so)
   else()
     set(TensorRT_INCLUDE_DIRS /usr/include/x86_64-linux-gnu)
     set(TensorRT_LIBRARIES /usr/lib/x86_64-linux-gnu)
-    set(Clipper_LIBS /usr/lib/x86_64-linux-gnu/libpolyclipping.so)
   endif()
 
   message(STATUS "TensorRT Libs: \n${TensorRT_LIBRARIES}\n")
@@ -59,6 +57,14 @@ else()
 endif()
 
 set(ONNXRUNTIME_LIBS /usr/lib/libonnxruntime.so)
+
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+  set(Clipper_LIBS /usr/lib/aarch64-linux-gnu/libpolyclipping.so)
+else()
+  set(Clipper_LIBS /usr/lib/x86_64-linux-gnu/libpolyclipping.so)
+endif()
+message(STATUS "Clipper Libs: \n${Clipper_LIBS}\n")
+  
 
 add_subdirectory(framework)
 add_subdirectory(model)

@@ -5,7 +5,7 @@ target_link_directories(yolov8_test PUBLIC ${TensorRT_LIBRARIES} ${OpenCV_LIBS} 
 
 add_executable(ocr_test ${CMAKE_CURRENT_SOURCE_DIR}/ocr_test.cpp)
 target_include_directories(ocr_test PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
-target_link_libraries(ocr_test PUBLIC ctc attn dbnet)
+target_link_libraries(ocr_test PUBLIC ctc attn dbnet) 
 target_link_directories(ocr_test PUBLIC ${TensorRT_LIBRARIES} ${OpenCV_LIBS} ${ONNXRUNTIME_LIBS})
 
 add_executable(sam_test ${CMAKE_CURRENT_SOURCE_DIR}/sam_test.cpp)

@@ -108,7 +108,7 @@ void Yolov8SegTest() {
 }
 
 int main() {
-    // Yolov8NormalTest();
+    Yolov8NormalTest();
     Yolov8E2ETest();
-    // Yolov8SegTest();
+    Yolov8SegTest();
 }

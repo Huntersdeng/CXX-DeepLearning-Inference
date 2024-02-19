@@ -113,9 +113,13 @@ seg_channels: 32
 
 #### Run
 ```
-mkdir -p output/yolo/normal
+mkdir -p output/yolo
 mkdir output/yolo/normal
 mkdir output/yolo/end2end
 cd build
 ./test/yolov8_test
 ```
+
+### Example output
+<p align="center"><img src="../../output/yolo/end2end/bus.jpg" height="px"/></p>
+<p align="center"><img src="../../output/yolo/seg/bus.jpg" height="px"/></p>
