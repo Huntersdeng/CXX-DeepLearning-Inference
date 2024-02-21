@@ -62,3 +62,5 @@ else()
     target_link_libraries(sam framework_onnx yaml-cpp)
 endif()
 target_link_libraries(sam ${OpenCV_LIBS})
+
+add_subdirectory(clip)

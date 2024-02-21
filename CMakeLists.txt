@@ -64,7 +64,6 @@ else()
   set(Clipper_LIBS /usr/lib/x86_64-linux-gnu/libpolyclipping.so)
 endif()
 message(STATUS "Clipper Libs: \n${Clipper_LIBS}\n")
-  
 
 add_subdirectory(framework)
 add_subdirectory(model)
