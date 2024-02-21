@@ -1,6 +1,8 @@
-#include "model/base/cv_model.h"
+#pragma once
+#include "model/base/model.h"
 
-class MaskDecoder : public CvModel {
+namespace sam {
+class MaskDecoder : public Model {
    public:
     MaskDecoder() = delete;
     MaskDecoder(const std::string &model_path, const std::string framework_type);
@@ -12,3 +14,4 @@ class MaskDecoder : public CvModel {
    private:
     std::vector<int64_t> features_shape;
 };
+}

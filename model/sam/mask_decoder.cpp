@@ -1,6 +1,7 @@
 #include "model/sam/mask_decoder.h"
-
 #include <yaml-cpp/yaml.h>
+
+using namespace sam;
 
 MaskDecoder::MaskDecoder(const std::string &model_path, const std::string framework_type)
     : features_shape{1, 256, 64, 64} {

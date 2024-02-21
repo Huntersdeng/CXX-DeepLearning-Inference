@@ -1,5 +1,5 @@
 #pragma once
-#include "model/base/cv_model.h"
+#include "model/base/model.h"
 #include "common/common.h"
 #include "framework/config.h"
 
@@ -7,7 +7,7 @@
     #include "framework/tensorrt/tensorrt.h"
 #endif
 
-class OcrModel : public CvModel
+class OcrModel : public Model
 {
 public:
     OcrModel() = delete;

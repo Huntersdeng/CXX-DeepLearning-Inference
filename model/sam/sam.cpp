@@ -1,5 +1,7 @@
 #include "model/sam/sam.h"
 
+using namespace sam;
+
 SAM::SAM(const std::string& encoder_cfg, const std::string& decoder_cfg) {
     encoder_ = std::make_shared<ImageEncoder>(encoder_cfg);
     decoder_ = std::make_shared<MaskDecoder>(decoder_cfg);

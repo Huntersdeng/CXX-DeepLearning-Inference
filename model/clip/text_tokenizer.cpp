@@ -1,6 +1,8 @@
 #include "model/clip/text_tokenizer.h"
 
-std::map<size_t, std::string> ByteToUnicode() {
+using namespace clip;
+
+static std::map<size_t, std::string> ByteToUnicode() {
     return {{33, "!"},  {34, "\""}, {35, "#"},  {36, "$"},  {37, "%"},  {38, "&"},  {39, "'"},  {40, "("},  {41, ")"},
             {42, "*"},  {43, "+"},  {44, ","},  {45, "-"},  {46, "."},  {47, "/"},  {48, "0"},  {49, "1"},  {50, "2"},
             {51, "3"},  {52, "4"},  {53, "5"},  {54, "6"},  {55, "7"},  {56, "8"},  {57, "9"},  {58, ":"},  {59, ";"},
@@ -32,7 +34,7 @@ std::map<size_t, std::string> ByteToUnicode() {
             {158, "ŀ"}, {159, "Ł"}, {160, "ł"}, {173, "Ń"}};
 }
 
-std::vector<std::string> Unicode() {
+static std::vector<std::string> Unicode() {
     return {"!", "\"", "#", "$", "%", "&", "\'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4",
             "5", "6",  "7", "8", "9", ":", ";",  "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H",
             "I", "J",  "K", "L", "M", "N", "O",  "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\",
@@ -48,17 +50,17 @@ std::vector<std::string> Unicode() {
             "Ĵ", "ĵ",  "Ķ", "ķ", "ĸ", "Ĺ", "ĺ",  "Ļ", "ļ", "Ľ", "ľ", "Ŀ", "ŀ", "Ł", "ł", "Ń"};
 }
 
-void lower(std::string &str) {
+static void lower(std::string &str) {
     std::transform(str.begin(), str.end(), str.begin(),
                    [](unsigned char c){ return std::tolower(c); });
 }
 
-void whitespaceClean(std::string &str) {
+static void whitespaceClean(std::string &str) {
     str = std::regex_replace(str, std::regex("\\s+"), " ");
     str = str.substr(str.find_first_not_of(" "), str.find_last_not_of(" ") + 1);
 }
 
-void getPairs(const std::vector<std::string> &word, std::set<std::vector<std::string>> &pairs) {
+static void getPairs(const std::vector<std::string> &word, std::set<std::vector<std::string>> &pairs) {
     pairs.clear();
     std::string prev_char = word[0];
     for (size_t i = 1; i < word.size(); ++i) {
@@ -67,7 +69,7 @@ void getPairs(const std::vector<std::string> &word, std::set<std::vector<std::st
     }
 }
 
-void ReadVocab(const std::string& path, std::vector<std::vector<std::string>>& merges) {
+static void ReadVocab(const std::string& path, std::vector<std::vector<std::string>>& merges) {
     gzFile file = gzopen(path.c_str(), "rb");
     if (file == NULL) {
         std::cerr << "Error opening file" << std::endl;

@@ -1,5 +1,5 @@
 #pragma once
-#include "model/base/cv_model.h"
+#include "model/base/model.h"
 #include "common/common.h"
 #include "framework/config.h"
 
@@ -44,7 +44,7 @@ float Iou(cv::Rect bb_test, cv::Rect bb_gt);
 
 void Nms(std::vector<Object> &res, float nms_thresh);
 
-class DetectionModel : public CvModel
+class DetectionModel : public Model
 {
 public:
     explicit DetectionModel() {}; 

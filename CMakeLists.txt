@@ -26,6 +26,8 @@ message(STATUS "OpenCV Libs: \n${OpenCV_LIBS}\n")
 message(STATUS "OpenCV Libraries: \n${OpenCV_LIBRARIES}\n")
 message(STATUS "OpenCV Headers: \n${OpenCV_INCLUDE_DIRS}\n")
 
+find_package(Eigen3 REQUIRED)
+
 if(USE_TENSORRT)
   find_package(CUDA REQUIRED)
   message(STATUS "CUDA Libs: \n${CUDA_LIBRARIES}\n")

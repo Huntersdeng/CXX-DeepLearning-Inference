@@ -110,10 +110,6 @@ Status ONNXFramework::Init(Config config) {
 
     }
 
-    for (const auto& binding : output_bindings) {
-        std::cout << binding.name << ": " << binding.size << std::endl;
-    }
-
     return Status::SUCCESS;
 }
 
@@ -136,16 +132,22 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
             return Status::INFERENCE_ERROR;
         }
 
+        size_t size = 1;
         if (!is_dynamic) {
-            input_tensors.push_back(Ort::Value::CreateTensor<float>(
-                memory_info, (float*)input.at(input_name).data(), binding.size, binding.dims.data(), binding.dims.size()));
+            size = binding.size;
         } else {
-            size_t size = 1;
             for (size_t i = 0; i < input.at(input_name).shape.size(); i++) {
                 size *= input.at(input_name).shape[i];
             }
+        }
+        if (input.at(input_name).data_type == DataType::INT32) {
+            input_tensors.push_back(Ort::Value::CreateTensor<int>(
+                memory_info, (int*)input.at(input_name).data(), size, input.at(input_name).shape.data(), input.at(input_name).shape.size()));
+        } else if (input.at(input_name).data_type == DataType::FP32) {
             input_tensors.push_back(Ort::Value::CreateTensor<float>(
                 memory_info, (float*)input.at(input_name).data(), size, input.at(input_name).shape.data(), input.at(input_name).shape.size()));
+        } else {
+            std::cout << "Error occur when Ort::Value::CreateTensor" << std::endl;
         }
         
     }
@@ -166,7 +168,6 @@ Status ONNXFramework::forward(const std::unordered_map<std::string, IOTensor>& i
         size_t element_size = TypeToSize(output_tensors[i].GetTensorTypeAndShapeInfo().GetElementType());
         size_t count = output_tensors[i].GetTensorTypeAndShapeInfo().GetElementCount();
         output[output_names[i]].resize(element_size * count);
-        uint8_t *ptr = output[output_names[i]].data();
         memcpy(output[output_names[i]].data(), output_tensors[i].GetTensorData<uint8_t>(), element_size * count);
         output[output_names[i]].shape = output_tensors[i].GetTensorTypeAndShapeInfo().GetShape();
         std::cout << "Shape of " << output_names[i] << ": [";

@@ -1,6 +1,8 @@
 #include "model/sam/image_encoder.h"
 #include <yaml-cpp/yaml.h>
 
+using namespace sam;
+
 ImageEncoder::ImageEncoder(const std::string &model_path, const std::string framework_type)
     : m_input_size_(1024, 1024), m_output_size_(64, 64) {
     config_.model_path = model_path;

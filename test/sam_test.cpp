@@ -8,14 +8,14 @@ int main() {
     std::string encoder_cfg = current_path + "config/sam/image_encoder.yaml";
     std::string decoder_cfg = current_path + "config/sam/mask_decoder.yaml";
 
-    SAM sam(encoder_cfg, decoder_cfg);
+    sam::SAM sam_model(encoder_cfg, decoder_cfg);
 
     cv::Mat image, input_image;
 
     image = cv::imread("../test/image/sam/dogs.jpg");
     cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
 
-    sam.setImage(input_image);
+    sam_model.setImage(input_image);
 
     std::vector<cv::Point2f> points;
     points.push_back(cv::Point2f(100, 100));
@@ -23,7 +23,7 @@ int main() {
     std::vector<float> labels{2, 3};
 
     cv::Mat output_mask;
-    sam.predict(points, labels, output_mask);
+    sam_model.predict(points, labels, output_mask);
 
     cv::Mat res = image.clone();
     cv::Mat mask = image.clone();

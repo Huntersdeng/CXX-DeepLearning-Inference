@@ -8,11 +8,11 @@
     #include "framework/tensorrt/tensorrt.h"
 #endif
 
-class CvModel
+class Model
 {
 public:
-    explicit CvModel() {}; 
-    virtual ~CvModel() {};
+    explicit Model() {}; 
+    virtual ~Model() {};
 
     Config config_;
     std::shared_ptr<BaseFramework> framework_;

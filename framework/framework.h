@@ -5,9 +5,15 @@
 
 #include "common/common.h"
 
+enum DataType {
+    INT32 = 1,
+    FP32 = 2,
+};
+
 struct IOTensor {
     std::vector<uint8_t> raw_data;
     std::vector<int64_t> shape;
+    DataType data_type = DataType::FP32;
     void resize(size_t size) {
         raw_data.resize(size);
     }
