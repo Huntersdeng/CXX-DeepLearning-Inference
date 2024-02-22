@@ -2,6 +2,7 @@
 #include "model/clip/image_encoder.h"
 #include "model/clip/text_encoder.h"
 #include "model/clip/clip.h"
+#include <yaml-cpp/yaml.h>
 
 void ModuleTest() {
     clip::TextTokenizer tokenizer("/home/stardust/my_work/model-zoo-cxx/weights/clip/bpe_simple_vocab_16e6.txt.gz");
@@ -44,6 +45,7 @@ void ModuleTest() {
     clip::TextEncoder text_encoder(text_encoder_cfg);
     
     std::vector<std::string> texts{"a photo of a man", "a photo of a woman"};
+    text_encoder.setPrompt(texts);
 
     IOTensor text_embeddings;
     text_encoder.forward(texts, text_embeddings);
@@ -132,6 +134,38 @@ void ModuleTest() {
     std::cout << result << std::endl;
 }
 
+// void GetTextEmbeddings() {
+//     std::string current_path = "../";
+//     std::string text_encoder_cfg = current_path + "config/clip/text_encoder.yaml";
+//     YAML::Node yaml_node = YAML::LoadFile(text_encoder_cfg);
+
+//     std::string prompt_path = yaml_node["prompts"].as<std::string>();
+//     std::ifstream file(prompt_path);
+//     std::vector<std::string> texts;
+
+//     if (file.is_open()) {
+//         std::string line;
+//         while (std::getline(file, line)) {
+//             texts.push_back(line); // 逐行读取文件内容并存储到 vector 中
+//         }
+//         file.close(); // 关闭文件
+//     } else {
+//         std::cout << "无法打开文件" << std::endl;
+//     }
+
+//     std::cout << "Prompts: ";
+//     for (const auto& l : texts) {
+//         std::cout << l << " ";
+//     }
+//     std::cout << std::endl;
+
+//     std::string bpe_path = yaml_node["bpe_path"].as<std::string>();
+//     std::string model_path = yaml_node["model_path"].as<std::string>();
+//     std::string framework_type = yaml_node["framework"].as<std::string>();
+
+//     clip::TextEncoder text_encoder(model_path, framework_type, bpe_path);
+// }
+
 void PipeLineTest() {
     std::string current_path = "../";
     std::string image_encoder_cfg = current_path + "config/clip/image_encoder.yaml";
@@ -161,5 +195,6 @@ void PipeLineTest() {
 }
 
 int main() {
-    PipeLineTest();
+    ModuleTest();
+    // PipeLineTest();
 }

@@ -4,3 +4,5 @@ framework: "ONNX"
 # model_path: "../weights/sam/resnet18_image_encoder.engine"
 # framework: "TensorRT"
 bpe_path: "../weights/clip/bpe_simple_vocab_16e6.txt.gz"
+prompts: "../config/clip/prompts.txt"
+online: true
