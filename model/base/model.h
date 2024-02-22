@@ -13,7 +13,7 @@ class Model
 public:
     explicit Model() {}; 
     virtual ~Model() {};
-
+protected:
     Config config_;
     std::shared_ptr<BaseFramework> framework_;
 };

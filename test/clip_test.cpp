@@ -1,14 +1,9 @@
 #include "model/clip/text_tokenizer.h"
 #include "model/clip/image_encoder.h"
 #include "model/clip/text_encoder.h"
+#include "model/clip/clip.h"
 
-int main() {
-//   Tokenizer tokenizer(Tokenizer::Mode::Conservative, Tokenizer::Flags::JoinerAnnotate);
-//   std::vector<std::string> tokens;
-//   tokenizer.tokenize("a photo of a man", tokens);
-//   for (const auto& token : tokens) {
-//     std::cout << token << std::endl;
-//   }
+void ModuleTest() {
     clip::TextTokenizer tokenizer("/home/stardust/my_work/model-zoo-cxx/weights/clip/bpe_simple_vocab_16e6.txt.gz");
     std::vector<int> tokens = tokenizer.tokenize("a photo of a woman");
     for(int token : tokens) {
@@ -135,6 +130,36 @@ int main() {
     cv::Mat result;
     cv::gemm(image_matrix, text_matrix.t(), 100, cv::Mat(), 0.0, result);
     std::cout << result << std::endl;
-    
-    return 0;
+}
+
+void PipeLineTest() {
+    std::string current_path = "../";
+    std::string image_encoder_cfg = current_path + "config/clip/image_encoder.yaml";
+    std::string text_encoder_cfg = current_path + "config/clip/text_encoder.yaml";
+
+    clip::Clip clip_model(image_encoder_cfg, text_encoder_cfg);
+
+    std::vector<cv::Mat> images;
+    images.push_back(cv::imread("../test/image/clip/franz-kafka.jpg"));
+    images.push_back(cv::imread("../test/image/clip/Mona_Lisa.jpg"));
+    clip_model.encodeImages(images);
+
+    std::vector<std::string> texts{"a photo of a man", "a photo of a woman"};
+    clip_model.encodeTexts(texts);
+
+    std::vector<std::vector<float>> probs = clip_model.computeProbabilities();
+
+    std::cout << "[ ";
+    for (size_t i = 0; i < probs.size(); i++) {
+        std::cout << "[ ";
+        for (size_t j = 0; j < probs[0].size(); j++) {
+            std::cout << probs[i][j] << " ";
+        }
+        std::cout << " ], ";
+    }
+    std::cout << " ]" << std::endl;
+}
+
+int main() {
+    PipeLineTest();
 }
