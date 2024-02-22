@@ -38,6 +38,12 @@ torch.onnx.export(text_model,
                 })
 ```
 
+### Get bpe vocab
+```
+git clone https://github.com/lakeraai/onnx_clip.git
+cp onnx_clip/onnx_clip/data/bpe_simple_vocab_16e6.txt.gz model-zoo-cxx/weights/clip
+```
+
 ### Inference
 #### Build
 ```
@@ -58,6 +64,9 @@ model_name: "clip_text_encoder"
 model_path: "../weights/clip/clip_text_model_vitb32.onnx"
 framework: "ONNX"
 bpe_path: "../weights/clip/bpe_simple_vocab_16e6.txt.gz"
+prompts: "../config/clip/prompts.txt"
+text_embedding: "../weights/clip/text_embeddings.bin"
+online: true
 ```
 #### Run
 ```
@@ -103,9 +112,8 @@ We can simply transfer the onnx model to tensorrt engine by
 However, these models with vit is too large for Jetson.
 
 Nvidia releases [clip-distillation](https://github.com/NVIDIA-AI-IOT/clip-distillation) to solve this problem. 
-First, train a smaller image model with knowledge distillation.
-Though Nvidia does not release weights yet, it publishes a pipeline to train models by our own.
-Besides, fix the prompt texts and save their embeddings.
+First, train a smaller image model with knowledge distillation. Though Nvidia does not release weights yet, it publishes a pipeline to train models.
+Second, fix the prompt texts and save their embeddings.
 
 ### Inference
 #### Build
@@ -121,8 +129,21 @@ model_name: "clip_image_encoder"
 model_path: "../weights/clip/clip_image_model_res18.engine"
 framework: "TensorRT"
 ```
+config/clip/text_encoder.yaml
+```
+model_name: "clip_text_encoder"
+model_path: "../weights/clip/clip_text_model_vitb32.onnx"
+framework: "ONNX"
+# model_path: "../weights/sam/resnet18_image_encoder.engine"
+# framework: "TensorRT"
+bpe_path: "../weights/clip/bpe_simple_vocab_16e6.txt.gz"
+prompts: "../config/clip/prompts.txt"
+text_embedding: "../weights/clip/text_embeddings.bin"
+online: false
+```
 #### Run
 ```
 cd build
+./test/clip_test -g ## generate text_embeddings.bin
 ./test/clip_test
 ```

@@ -5,4 +5,5 @@ framework: "ONNX"
 # framework: "TensorRT"
 bpe_path: "../weights/clip/bpe_simple_vocab_16e6.txt.gz"
 prompts: "../config/clip/prompts.txt"
-online: true
+text_embedding: "../weights/clip/text_embeddings.bin"
+online: false

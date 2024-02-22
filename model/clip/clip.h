@@ -16,5 +16,6 @@ class Clip {
     std::shared_ptr<TextEncoder> m_text_encoder_;
     IOTensor image_embeddings;
     IOTensor text_embeddings;
+    std::map<std::string, std::vector<float>> cache_;
 };
 }
