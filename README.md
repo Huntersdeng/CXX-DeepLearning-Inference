@@ -17,7 +17,7 @@ A unified and extensible pipeline for deep learning model inference with C++.
   - [x] encoder
   - [x] decoder
   - [x] pipeline
-- [ ] clip
+- [x] clip
 
 ## Appendix
 [How to build TensorRT environment](/doc/environment/cuda-on-linux.md)

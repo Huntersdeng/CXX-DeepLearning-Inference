@@ -1,8 +1,6 @@
 model_name: "clip_text_encoder"
 model_path: "../weights/clip/clip_text_model_vitb32.onnx"
 framework: "ONNX"
-# model_path: "../weights/sam/resnet18_image_encoder.engine"
-# framework: "TensorRT"
 bpe_path: "../weights/clip/bpe_simple_vocab_16e6.txt.gz"
 prompts: "../config/clip/prompts.txt"
 text_embedding: "../weights/clip/text_embeddings.bin"
