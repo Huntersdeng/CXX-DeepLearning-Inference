@@ -19,6 +19,8 @@ wget https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8s-seg.
 ```
 # without-nms
 python3 model/yolov8/export-det.py --weights=path-to-your-weights --sim
+# with onnx-nms plugin
+python3 model/yolov8/export-det.py --weights=path-to-your-weights --sim --onnx-nms
 # with trt-nms plugin (only for tensorrt transfer, not support to inference with onnxruntime C++)
 python3 model/yolov8/export-det.py --weights=path-to-your-weights --sim --trt-nms
 ```
@@ -102,7 +104,7 @@ topk: 100
 config/yolo/yolov8_seg.yaml for yolov8 seg model
 ```
 model_name: "yolov8_seg"
-model_path: "path-to-your-onnx-model"
+model_path: "path-to-tensorrt-model"
 framework: "TensorRT"
 input_size: [640,640]
 conf_thres: 0.25
