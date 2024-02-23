@@ -119,7 +119,7 @@ static float get_box_score(float* map, cv::Point2f rect[], int width, int height
     return sum / num;
 }
 
-DBNet::DBNet(const std::string &model_path, const std::string framework_type, cv::Size input_size, float box_thres) : m_box_thres_(box_thres) {
+DBNet::DBNet(const std::string &model_path, const std::string framework_type, float box_thres) : m_box_thres_(box_thres) {
     config_.model_path = model_path;
     if (framework_type == "TensorRT")
     {   
@@ -140,8 +140,9 @@ DBNet::DBNet(const std::string &model_path, const std::string framework_type, cv
         exit(0);
     }
 
-    config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["output"] = 2 * m_input_size_.height * m_input_size_.width;
+    config_.input_len["images"] = -1;
+    config_.output_len["output"] = -1;
+    config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
         std::cout << "Failed to init framework" << std::endl;
@@ -157,10 +158,6 @@ DBNet::DBNet(const std::string &yaml_file) {
 
     m_box_thres_ = yaml_node["box_thres"].as<float>();
 
-    std::vector<long> input_size = yaml_node["input_size"].as<std::vector<long>>();
-    m_input_size_.width = input_size.at(0);
-    m_input_size_.height = input_size.at(1);
-
     config_.model_path = model_path;
     if (framework_type == "TensorRT")
     {   
@@ -181,8 +178,8 @@ DBNet::DBNet(const std::string &yaml_file) {
         exit(0);
     }
 
-    config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["output"] = 2 * m_input_size_.height * m_input_size_.width;
+    config_.input_len["images"] = -1;
+    config_.output_len["output"] = -1;
     config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
@@ -215,12 +212,14 @@ void DBNet::detect(const cv::Mat &image, std::vector<Object> &objs) {
     input["images"].resize(nchw.total() * nchw.elemSize());
     memcpy(input["images"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
     input["images"].shape = std::vector<int64_t>{1, 3, nchw.size[2], nchw.size[3]};
+    input["images"].data_type = DataType::FP32;
     
 
     // 输出张量设置
     output["output"] = IOTensor();
     output["output"].resize(2 * nchw.size[2] * nchw.size[3] * sizeof(float));
     output["output"].shape = std::vector<int64_t>{1, 2 ,nchw.size[2] ,nchw.size[3]};
+    output["output"].data_type = DataType::FP32;
 
     this->framework_->forward(input, output);
     postprocess(output, objs);

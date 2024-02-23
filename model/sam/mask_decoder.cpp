@@ -77,6 +77,14 @@ MaskDecoder::MaskDecoder(const std::string &yaml_file) : features_shape{1, 256, 
 
 MaskDecoder::~MaskDecoder() { std::cout << "Destruct sam mask decoder" << std::endl; }
 
+
+// The point labels may be
+// | Point Label | Description |
+// |:--------------------:|-------------|
+// | 0 | Background point |
+// | 1 | Foreground point |
+// | 2 | Bounding box top-left |
+// | 3 | Bounding box bottom-right |
 void MaskDecoder::forward(const IOTensor &features, const std::vector<cv::Point2f> &image_point_coords,
                           const std::vector<float> &image_point_labels, cv::Mat& low_res_mask) {
     std::unordered_map<std::string, IOTensor> input, output;

@@ -1,5 +1,5 @@
 model_name: "dbnet"
-model_path: "../weights/ocr/det/DBNet.engine"
-# framework: "ONNX"
-framework: "TensorRT"
+model_path: "../weights/ocr/DBNet.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
 box_thres: 0.5

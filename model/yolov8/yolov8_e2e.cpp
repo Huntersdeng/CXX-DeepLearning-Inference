@@ -91,21 +91,31 @@ void YOLOv8E2E::detect(const cv::Mat &image, std::vector<Object> &objs) {
     preprocess(image, nchw);
 
     input["images"] = IOTensor();
+    input["images"].shape = std::vector<int64_t>{1, 3, m_input_size_.height, m_input_size_.width};
+    input["images"].data_type = DataType::FP32;
     input["images"].resize(nchw.total() * nchw.elemSize());
     memcpy(input["images"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
     
 
     // 输出张量设置
     output["num_dets"] = IOTensor();
+    output["num_dets"].shape = std::vector<int64_t>{1, 1};
+    output["num_dets"].data_type = DataType::INT32;
     output["num_dets"].resize(config_.output_len["num_dets"] * sizeof(int));
 
     output["bboxes"] = IOTensor();
+    output["bboxes"].shape = std::vector<int64_t>{1, 100, 4};
+    output["bboxes"].data_type = DataType::FP32;
     output["bboxes"].resize(config_.output_len["bboxes"] * sizeof(float));
 
     output["scores"] = IOTensor();
+    output["scores"].shape = std::vector<int64_t>{1, 100};
+    output["scores"].data_type = DataType::FP32;
     output["scores"].resize(config_.output_len["scores"] * sizeof(float));
 
     output["labels"] = IOTensor();
+    output["labels"].shape = std::vector<int64_t>{1, 100};
+    output["labels"].data_type = DataType::INT32;
     output["labels"].resize(config_.output_len["labels"] * sizeof(int));
 
     this->framework_->forward(input, output);

@@ -121,23 +121,26 @@ void YOLOv8Seg::detect(const cv::Mat &image, std::vector<Object> &objs)
     std::unordered_map<std::string, IOTensor> input, output;
 
     // 输入tensor设置
-    // auto start = std::chrono::system_clock::now();
     cv::Mat nchw;
     preprocess(image, nchw);
 
     input["images"] = IOTensor();
     input["images"].resize(nchw.total() * nchw.elemSize());
+    input["images"].shape = std::vector<int64_t>{1, 3, m_input_size_.height, m_input_size_.width};
+    input["images"].data_type = DataType::FP32;
     memcpy(input["images"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
     
 
     // 输出张量设置
     output["outputs"] = IOTensor();
-    output["proto"] = IOTensor();
+    output["outputs"].shape = std::vector<int64_t>{1, m_grid_num_, m_seg_channels_ + 6};
+    output["outputs"].data_type = DataType::FP32;
     output["outputs"].resize(config_.output_len["outputs"] * sizeof(float));
+
+    output["proto"] = IOTensor();
+    output["proto"].shape = std::vector<int64_t>{1, m_seg_channels_, m_seg_size_.height, m_seg_size_.width};
+    output["proto"].data_type = DataType::FP32;
     output["proto"].resize(config_.output_len["proto"] * sizeof(float));
-    // auto end = std::chrono::system_clock::now();
-    // auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
-    // std::cout << "Preprocess costs " << tc << " ms" << std::endl;
 
     // start = std::chrono::system_clock::now();
     this->framework_->forward(input, output);

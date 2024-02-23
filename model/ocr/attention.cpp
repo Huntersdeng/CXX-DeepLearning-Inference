@@ -10,11 +10,15 @@ std::string AttnModel::detect(const cv::Mat &image) {
     cv::dnn::blobFromImage(image, nchw, 1 / 64.f, m_input_size_, cv::Scalar(127.5, 127.5, 127.5), true, false, CV_32F);
 
     input["images"] = IOTensor();
+    input["images"].shape = std::vector<int64_t>{1, static_cast<int64_t>(m_input_channel_), m_input_size_.height, m_input_size_.width};
+    input["images"].data_type = DataType::FP32;
     input["images"].resize(nchw.total() * nchw.elemSize());
     memcpy(input["images"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
 
     // 输出张量设置
     output["output"] = IOTensor();
+    output["output"].shape = std::vector<int64_t>{1, static_cast<int64_t>(m_output_length_)};
+    output["output"].data_type = DataType::FP32;
     output["output"].resize(m_output_length_ * sizeof(float));
 
     this->framework_->forward(input, output);

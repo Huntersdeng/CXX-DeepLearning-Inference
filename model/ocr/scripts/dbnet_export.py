@@ -36,6 +36,7 @@ def main(args):
     config = checkpoint['config']
     config['arch']['backbone']['pretrained'] = False
     model = build_model(config['arch'])
+    model.load_state_dict(checkpoint['state_dict'])
     model.to(args.device)
 
     fake_input = torch.randn((1, 3, 640, 640)).to(args.device)

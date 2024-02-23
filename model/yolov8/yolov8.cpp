@@ -109,12 +109,16 @@ void YOLOv8::detect(const cv::Mat &image, std::vector<Object> &objs) {
     preprocess(image, nchw);
 
     input["images"] = IOTensor();
+    input["images"].shape = std::vector<int64_t>{1, 3, m_input_size_.height, m_input_size_.width};
+    input["images"].data_type = DataType::FP32;
     input["images"].resize(nchw.total() * nchw.elemSize());
     memcpy(input["images"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
     
 
     // 输出张量设置
     output["output"] = IOTensor();
+    output["output"].shape = std::vector<int64_t>{1, m_grid_num_, 6};
+    output["output"].data_type = DataType::FP32;
     output["output"].resize(config_.output_len["output"] * sizeof(float));
 
     this->framework_->forward(input, output);
