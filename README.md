@@ -8,16 +8,13 @@ A unified and extensible pipeline for deep learning model inference with C++.
 - [ ] RKNN
 ### Support model
 - [x] object-detection
-  - [x] yolov8 (det, seg)
+  - [x] [yolov8](/doc/model/yolov8.md) (det, seg) 
 - [x] ocr
-  - [x] crnn
-  - [x] abinet
-  - [x] dbnet
-- [x] sam 
-  - [x] encoder
-  - [x] decoder
-  - [x] pipeline
-- [x] clip
+  - [x] [crnn](/doc/model/crnn.md)
+  - [x] [abinet](/doc/model/abinet.md)
+  - [x] [dbnet](/doc/model/dbnet.md)
+- [x] [sam](/doc/model/sam.md) 
+- [x] [clip](/doc/model/clip.md)
 
 ## Appendix
 [How to build TensorRT environment](/doc/environment/cuda-on-linux.md)
