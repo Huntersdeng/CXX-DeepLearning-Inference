@@ -1,55 +1,9 @@
 #include "framework/framework.h"
 
-#include "model/yolov8/yolov8_seg.h"
+#include "model/yolo/yolo_seg.h"
 #include <yaml-cpp/yaml.h>
 
-YOLOv8Seg::YOLOv8Seg(const std::string &model_path,
-                     const std::string framework_type,
-                     cv::Size input_size,
-                     float conf_thres,
-                     float nms_thres,
-                     cv::Size seg_size,
-                     int seg_channels) : m_input_size_(input_size),
-                                         m_seg_size_(seg_size), m_seg_channels_(seg_channels),
-                                         m_conf_thres_(conf_thres), m_nms_thres_(nms_thres)
-{
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT")
-    {   
-    #ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-    #else
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    #endif
-    }
-    else if (framework_type == "ONNX")
-    {
-        framework_ = std::make_shared<ONNXFramework>();
-    }
-    else
-    {
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    }
-
-    m_grid_num_ = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        m_grid_num_ += (m_input_size_.width / strides[i]) * (m_input_size_.height / strides[i]);
-    }
-    config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["outputs"] = m_grid_num_ * (m_seg_channels_ + 6);
-    config_.output_len["proto"] = m_seg_channels_ * m_seg_size_.height * m_seg_size_.width;
-    config_.is_dynamic = false;
-    Status status = framework_->Init(config_);
-    if (status != Status::SUCCESS) {
-        std::cout << "Failed to init framework" << std::endl;
-        exit(0);
-    }
-}
-
-YOLOv8Seg::YOLOv8Seg(const std::string &yaml_file)
+YOLOSeg::YOLOSeg(const std::string &yaml_file)
 {
     YAML::Node yaml_node = YAML::LoadFile(yaml_file);
 
@@ -69,25 +23,7 @@ YOLOv8Seg::YOLOv8Seg(const std::string &yaml_file)
 
     m_seg_channels_ = yaml_node["seg_channels"].as<int>();
 
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT")
-    {   
-    #ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-    #else
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    #endif
-    }
-    else if (framework_type == "ONNX")
-    {
-        framework_ = std::make_shared<ONNXFramework>();
-    }
-    else
-    {
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    }
+    if (!Init(model_path, framework_type)) exit(0);
 
     m_grid_num_ = 0;
     for (int i = 0; i < 3; i++)
@@ -105,18 +41,18 @@ YOLOv8Seg::YOLOv8Seg(const std::string &yaml_file)
     }
 }
 
-YOLOv8Seg::~YOLOv8Seg()
+YOLOSeg::~YOLOSeg()
 {
     std::cout << "Destruct yolov8" << std::endl;
 }
 
-void YOLOv8Seg::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
+void YOLOSeg::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
     cv::Mat mask;
     this->pparam_ = Letterbox(input_image, mask, m_input_size_);
     cv::dnn::blobFromImage(mask, output_image, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
 }
 
-void YOLOv8Seg::detect(const cv::Mat &image, std::vector<Object> &objs)
+void YOLOSeg::detect(const cv::Mat &image, std::vector<Object> &objs)
 {
     std::unordered_map<std::string, IOTensor> input, output;
 
@@ -155,7 +91,7 @@ void YOLOv8Seg::detect(const cv::Mat &image, std::vector<Object> &objs)
     // std::cout << "Postprocess costs " << tc << " ms" << std::endl;
 }
 
-void YOLOv8Seg::postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs)
+void YOLOSeg::postprocess(const std::unordered_map<std::string, IOTensor> &output, std::vector<Object> &objs)
 {
     objs.clear();
     auto seg_h = m_seg_size_.height;

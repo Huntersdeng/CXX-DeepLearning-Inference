@@ -1,0 +1,9 @@
+model_name: "yolov8"
+model_path: "../weights/yolo/yolov8s_end2end.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
+input_size: [640,640]
+with_nms: true
+conf_thres: 0.25
+nms_thres: 0.65
+topk: 100
