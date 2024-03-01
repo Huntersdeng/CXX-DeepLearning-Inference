@@ -9,9 +9,5 @@ target_include_directories(clip PUBLIC
   ${ICU_INCLUDE_DIRS}
   ${INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR})
-if(USE_TENSORRT)
-  target_link_libraries(clip framework_trt framework_onnx yaml-cpp)
-else()
-  target_link_libraries(clip framework_onnx yaml-cpp)
-endif()
+target_link_libraries(clip base_model yaml-cpp)
 target_link_libraries(clip ${ZLIB_LIBRARIES} ${ICU_LIBRARIES} ${OpenCV_LIBS})

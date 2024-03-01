@@ -119,37 +119,6 @@ static float get_box_score(float* map, cv::Point2f rect[], int width, int height
     return sum / num;
 }
 
-DBNet::DBNet(const std::string &model_path, const std::string framework_type, float box_thres) : m_box_thres_(box_thres) {
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT")
-    {   
-    #ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-    #else
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    #endif
-    }
-    else if (framework_type == "ONNX")
-    {
-        framework_ = std::make_shared<ONNXFramework>();
-    }
-    else
-    {
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    }
-
-    config_.input_len["images"] = -1;
-    config_.output_len["output"] = -1;
-    config_.is_dynamic = true;
-    Status status = framework_->Init(config_);
-    if (status != Status::SUCCESS) {
-        std::cout << "Failed to init framework" << std::endl;
-        exit(0);
-    }
-}
-
 DBNet::DBNet(const std::string &yaml_file) {
     YAML::Node yaml_node = YAML::LoadFile(yaml_file);
 
@@ -158,25 +127,7 @@ DBNet::DBNet(const std::string &yaml_file) {
 
     m_box_thres_ = yaml_node["box_thres"].as<float>();
 
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT")
-    {   
-    #ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-    #else
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    #endif
-    }
-    else if (framework_type == "ONNX")
-    {
-        framework_ = std::make_shared<ONNXFramework>();
-    }
-    else
-    {
-        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
-        exit(0);
-    }
+    if (!Init(model_path, framework_type)) exit(0);
 
     config_.input_len["images"] = -1;
     config_.output_len["output"] = -1;

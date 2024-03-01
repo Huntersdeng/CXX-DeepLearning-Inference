@@ -1,18 +1,11 @@
 #pragma once
 #include "model/base/model.h"
 #include "common/common.h"
-#include "framework/config.h"
-
-#ifdef USE_TENSORRT
-    #include "framework/tensorrt/tensorrt.h"
-#endif
 
 class OcrModel : public Model
 {
 public:
     OcrModel() = delete;
-    explicit OcrModel(const std::string &model_path, const std::string framework_type, cv::Size input_size, size_t input_channel,
-                  size_t output_size, const std::string alphabet);
     explicit OcrModel(const std::string &yaml_file);
     virtual ~OcrModel();
     virtual std::string detect(const cv::Mat &image) = 0;

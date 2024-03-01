@@ -5,7 +5,6 @@ namespace sam {
 class MaskDecoder : public Model {
    public:
     MaskDecoder() = delete;
-    MaskDecoder(const std::string &model_path, const std::string framework_type);
     MaskDecoder(const std::string &yaml_file);
     virtual ~MaskDecoder();
     void forward(const IOTensor &features, const std::vector<cv::Point2f> &image_point_coords,

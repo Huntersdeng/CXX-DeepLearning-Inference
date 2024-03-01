@@ -6,7 +6,6 @@ namespace clip {
 class TextEncoder : public Model {
    public:
     TextEncoder() = delete;
-    TextEncoder(const std::string &model_path, const std::string framework_type, const std::string &bpe_path);
     TextEncoder(const std::string &yaml_file);
     virtual ~TextEncoder();
     void forward(const std::vector<std::string> &texts, IOTensor &features);

@@ -3,33 +3,6 @@
 
 using namespace sam;
 
-ImageEncoder::ImageEncoder(const std::string &model_path, const std::string framework_type)
-    : m_input_size_(1024, 1024), m_output_size_(64, 64) {
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
-
-    config_.input_len["image"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["image_embeddings"] = 256 * m_output_size_.height * m_output_size_.width;
-    config_.is_dynamic = false;
-    Status status = framework_->Init(config_);
-    if (status != Status::SUCCESS) {
-        std::cout << "Failed to init framework" << std::endl;
-        exit(0);
-    }
-}
-
 ImageEncoder::ImageEncoder(const std::string &yaml_file) : m_input_size_(1024, 1024), m_output_size_(64, 64) 
 {
     YAML::Node yaml_node = YAML::LoadFile(yaml_file);
@@ -37,20 +10,7 @@ ImageEncoder::ImageEncoder(const std::string &yaml_file) : m_input_size_(1024, 1
     std::string model_path = yaml_node["model_path"].as<std::string>();
     std::string framework_type = yaml_node["framework"].as<std::string>();
 
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
+    if (!Init(model_path, framework_type)) exit(0);
 
     config_.input_len["image"] = 3 * m_input_size_.height * m_input_size_.width;
     config_.output_len["image_embeddings"] = 256 * m_output_size_.height * m_output_size_.width;
@@ -78,11 +38,15 @@ void ImageEncoder::forward(const cv::Mat &image, IOTensor& features) {
 
     input["image"] = IOTensor();
     input["image"].resize(nchw.total() * nchw.elemSize());
+    input["image"].shape = std::vector<int64_t>{1, 3, m_input_size_.height, m_input_size_.width};
+    input["image"].data_type = DataType::FP32;
     memcpy(input["image"].data(), nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
     
 
     // 输出张量设置
     output["image_embeddings"] = IOTensor();
+    output["image_embeddings"].data_type = DataType::FP32;
+    output["image_embeddings"].shape = std::vector<int64_t>{1, 256, m_output_size_.height, m_output_size_.width};
     output["image_embeddings"].resize(config_.output_len["image_embeddings"] * sizeof(float));
 
     this->framework_->forward(input, output);

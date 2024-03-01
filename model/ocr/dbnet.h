@@ -6,7 +6,6 @@
 class DBNet : public DetectionModel {
    public:
     DBNet() = delete;
-    explicit DBNet(const std::string &model_path, const std::string framework_type, float box_thres);
     explicit DBNet(const std::string &yaml_file);
     ~DBNet();
 

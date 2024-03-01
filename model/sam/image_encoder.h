@@ -6,7 +6,6 @@ namespace sam {
 class ImageEncoder : public Model {
    public:
     ImageEncoder() = delete;
-    ImageEncoder(const std::string &model_path, const std::string framework_type);
     ImageEncoder(const std::string &yaml_file);
     virtual ~ImageEncoder();
     void forward(const cv::Mat &image, IOTensor &features);

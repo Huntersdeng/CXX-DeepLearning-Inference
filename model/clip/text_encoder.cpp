@@ -4,34 +4,6 @@
 
 using namespace clip;
 
-TextEncoder::TextEncoder(const std::string &model_path, const std::string framework_type, const std::string &bpe_path)
-    : m_input_size_(77), m_output_size_(512) {
-    m_tokenizer_ = std::make_shared<TextTokenizer>(bpe_path);
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
-
-    config_.input_len["TEXT"] = m_input_size_;
-    config_.output_len["TEXT_EMBEDDING"] = m_output_size_;
-    config_.is_dynamic = true;
-    Status status = framework_->Init(config_);
-    if (status != Status::SUCCESS) {
-        std::cout << "Failed to init framework" << std::endl;
-        exit(0);
-    }
-}
-
 TextEncoder::TextEncoder(const std::string &yaml_file) : m_input_size_(77), m_output_size_(512) {
     YAML::Node yaml_node = YAML::LoadFile(yaml_file);
 
@@ -41,20 +13,7 @@ TextEncoder::TextEncoder(const std::string &yaml_file) : m_input_size_(77), m_ou
     std::string model_path = yaml_node["model_path"].as<std::string>();
     std::string framework_type = yaml_node["framework"].as<std::string>();
 
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
+    if (!Init(model_path, framework_type)) exit(0);
 
     config_.input_len["TEXT"] = m_input_size_;
     config_.output_len["TEXT_EMBEDDING"] = m_output_size_;

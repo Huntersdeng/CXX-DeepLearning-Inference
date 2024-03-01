@@ -3,60 +3,13 @@
 
 using namespace sam;
 
-MaskDecoder::MaskDecoder(const std::string &model_path, const std::string framework_type)
-    : features_shape{1, 256, 64, 64} {
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
-
-    config_.input_len["image_embeddings"] =
-        3 * features_shape[0] * features_shape[1] * features_shape[2] * features_shape[3];
-    config_.input_len["point_coords"] = 10 * 2;
-    config_.input_len["point_labels"] = 10;
-    config_.input_len["mask_input"] = 1 * 1 * 256 * 256;
-    config_.input_len["has_mask_input"] = 1;
-
-    config_.output_len["iou_predictions"] = -1;
-    config_.output_len["low_res_masks"] = -1;
-    config_.is_dynamic = true;
-    Status status = framework_->Init(config_);
-    if (status != Status::SUCCESS) {
-        std::cout << "Failed to init framework" << std::endl;
-        exit(0);
-    }
-}
-
 MaskDecoder::MaskDecoder(const std::string &yaml_file) : features_shape{1, 256, 64, 64}{
     YAML::Node yaml_node = YAML::LoadFile(yaml_file);
 
     std::string model_path = yaml_node["model_path"].as<std::string>();
     std::string framework_type = yaml_node["framework"].as<std::string>();
 
-    config_.model_path = model_path;
-    if (framework_type == "TensorRT") {
-#ifdef USE_TENSORRT
-        framework_ = std::make_shared<TensorRTFramework>();
-#else
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-#endif
-    } else if (framework_type == "ONNX") {
-        framework_ = std::make_shared<ONNXFramework>();
-    } else {
-        std::cout << "Framework " << framework_type << " not implemented" << std::endl;
-        exit(0);
-    }
+    if (!Init(model_path, framework_type)) exit(0);
 
     config_.input_len["image_embeddings"] =
         features_shape[0] * features_shape[1] * features_shape[2] * features_shape[3];

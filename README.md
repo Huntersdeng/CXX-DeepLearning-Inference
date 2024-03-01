@@ -9,6 +9,7 @@ A unified and extensible pipeline for deep learning model inference with C++.
 ### Support model
 - [x] object-detection
   - [x] [yolov8](/doc/model/yolov8.md) (det, seg) 
+  - [ ] yolov9
 - [x] ocr
   - [x] [crnn](/doc/model/crnn.md)
   - [x] [abinet](/doc/model/abinet.md)
