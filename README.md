@@ -8,8 +8,7 @@ A unified and extensible pipeline for deep learning model inference with C++.
 - [ ] RKNN
 ### Support model
 - [x] object-detection
-  - [x] [yolov8](/doc/model/yolov8.md) (det, seg) 
-  - [ ] yolov9
+  - [x] [yolo](/doc/model/yolov8.md) (including yolov8 & yolov9 for detection and segmentation) 
 - [x] ocr
   - [x] [crnn](/doc/model/crnn.md)
   - [x] [abinet](/doc/model/abinet.md)

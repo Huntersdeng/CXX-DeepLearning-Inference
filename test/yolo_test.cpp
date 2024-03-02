@@ -41,13 +41,13 @@ void Yolov8NormalTest() {
 
 void Yolov8SegTest() {
     std::string current_path = "../";
-    std::string yaml_file = current_path + "config/yolo/yolov8_seg.yaml";
+    std::string yaml_file = current_path + "config/yolo/yolo_seg.yaml";
 
     YOLOSeg model(yaml_file);
 
     std::vector<std::string> imagePathList;
     std::string input_path = current_path + "test/image/detect"; 
-    std::string output_path = current_path + "output/yolo/seg";
+    std::string output_path = current_path + "output/yolo/segment";
     cv::glob(input_path + "/*.jpg", imagePathList);
 
     cv::Mat image, input_image, res;
@@ -75,6 +75,5 @@ void Yolov8SegTest() {
 
 int main() {
     Yolov8NormalTest();
-    // Yolov8E2ETest();
     Yolov8SegTest();
 }

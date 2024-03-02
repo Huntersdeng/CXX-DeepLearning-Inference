@@ -1,4 +1,4 @@
-model_name: "yolov8"
+model_name: "yolo"
 model_path: "../weights/yolo/yolov8s_end2end.onnx"
 framework: "ONNX"
 # framework: "TensorRT"
