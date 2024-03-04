@@ -32,6 +32,11 @@ python3 model/yolo/yolov8-det-export.py --weights=path-to-your-weights --sim --t
 python3 model/yolo/yolov8-seg-export.py --weights=path-to-your-weights --sim
 ```
 
+#### YOLOv8-Pose
+```
+python3 model/yolo/yolov8-pose-export.py --weights=path-to-your-weights --sim
+```
+
 #### YOLOv9-Detect
 ```
 git clone https://github.com/WongKinYiu/yolov9.git
@@ -86,6 +91,16 @@ seg_size: [160, 160]
 seg_channels: 32
 ```
 
+#### Pose
+```
+model_name: "yolo_pose"
+model_path: "path-to-model-file"
+framework: "ONNX"      # ("ONNX" or "TensorRT", corresponding to your model)
+input_size: [640,640]
+conf_thres: 0.25
+nms_thres: 0.65
+```
+
 #### Run
 ```
 mkdir -p output/yolo/detect
@@ -97,3 +112,4 @@ cd build
 ### Example output
 <p align="center"><img src="../../output/yolo/detect/bus.jpg" height="px"/></p>
 <p align="center"><img src="../../output/yolo/segment/bus.jpg" height="px"/></p>
+<p align="center"><img src="../../output/yolo/pose/bus.jpg" height="px"/></p>

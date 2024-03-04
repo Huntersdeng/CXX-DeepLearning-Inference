@@ -2,10 +2,10 @@
 #include "common/common.h"
 
 #include "model/yolo/yolo_seg.h"
-// #include "model/yolov8/yolov8_e2e.h"
+#include "model/yolo/yolo_pose.h"
 #include "model/yolo/yolo.h"
 
-void Yolov8NormalTest() {
+void Yolov8DetTest() {
     std::string current_path = "../";
     std::string yaml_file = current_path + "config/yolo/yolo.yaml";
 
@@ -73,7 +73,42 @@ void Yolov8SegTest() {
     }
 }
 
+void Yolov8PoseTest() {
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/yolo/yolo_pose.yaml";
+
+    YOLOPose model(yaml_file);
+
+    std::vector<std::string> imagePathList;
+    std::string input_path = current_path + "test/image/detect"; 
+    std::string output_path = current_path + "output/yolo/pose";
+    cv::glob(input_path + "/*.jpg", imagePathList);
+
+    cv::Mat image, input_image, res;
+    std::vector<Object> objs;
+
+    std::vector<std::string> class_names;
+    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
+
+    for (auto& path : imagePathList) {
+        objs.clear();
+        std::cout << path << std::endl;
+        image = cv::imread(path);
+        cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
+        model.detect(input_image, objs);
+        DrawObjectsKps(image, res, objs, SKELETON, KPS_COLORS, LIMB_COLORS);
+
+        std::string::size_type iPos = path.find_last_of('/') + 1;
+	    std::string filename = path.substr(iPos, path.length() - iPos);
+        std::string out_path = output_path + "/" + filename;
+        // cv::imshow("image", res);
+        // cv::waitKey(0);
+        cv::imwrite(out_path, res);
+    }
+}
+
 int main() {
-    Yolov8NormalTest();
+    Yolov8DetTest();
     Yolov8SegTest();
+    Yolov8PoseTest();
 }

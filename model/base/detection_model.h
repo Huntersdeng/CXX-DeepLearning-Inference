@@ -8,6 +8,64 @@ const std::vector<std::vector<unsigned int>> COLORS = {
 const std::vector<std::vector<unsigned int>> MASK_COLORS = {
     {255, 56, 56}, {255, 157, 151}, {255, 112, 31}, {255, 178, 29}, {207, 210, 49}, {72, 249, 10}, {146, 204, 23}, {61, 219, 134}, {26, 147, 52}, {0, 212, 187}, {44, 153, 168}, {0, 194, 255}, {52, 69, 147}, {100, 115, 255}, {0, 24, 236}, {132, 56, 255}, {82, 0, 133}, {203, 56, 255}, {255, 149, 200}, {255, 55, 199}};
 
+const std::vector<std::vector<unsigned int>> KPS_COLORS = {{0, 255, 0},
+                                                           {0, 255, 0},
+                                                           {0, 255, 0},
+                                                           {0, 255, 0},
+                                                           {0, 255, 0},
+                                                           {255, 128, 0},
+                                                           {255, 128, 0},
+                                                           {255, 128, 0},
+                                                           {255, 128, 0},
+                                                           {255, 128, 0},
+                                                           {255, 128, 0},
+                                                           {51, 153, 255},
+                                                           {51, 153, 255},
+                                                           {51, 153, 255},
+                                                           {51, 153, 255},
+                                                           {51, 153, 255},
+                                                           {51, 153, 255}};
+
+const std::vector<std::vector<unsigned int>> SKELETON = {{16, 14},
+                                                         {14, 12},
+                                                         {17, 15},
+                                                         {15, 13},
+                                                         {12, 13},
+                                                         {6, 12},
+                                                         {7, 13},
+                                                         {6, 7},
+                                                         {6, 8},
+                                                         {7, 9},
+                                                         {8, 10},
+                                                         {9, 11},
+                                                         {2, 3},
+                                                         {1, 2},
+                                                         {1, 3},
+                                                         {2, 4},
+                                                         {3, 5},
+                                                         {4, 6},
+                                                         {5, 7}};
+
+const std::vector<std::vector<unsigned int>> LIMB_COLORS = {{51, 153, 255},
+                                                            {51, 153, 255},
+                                                            {51, 153, 255},
+                                                            {51, 153, 255},
+                                                            {255, 51, 255},
+                                                            {255, 51, 255},
+                                                            {255, 51, 255},
+                                                            {255, 128, 0},
+                                                            {255, 128, 0},
+                                                            {255, 128, 0},
+                                                            {255, 128, 0},
+                                                            {255, 128, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0},
+                                                            {0, 255, 0}};
+
 void ReadClassNames(std::string file_name, std::vector<std::string> &class_names);
 
 struct Object
@@ -16,6 +74,7 @@ struct Object
     int label = 0;
     float prob = 0.0;
     cv::Mat boxMask;
+    std::vector<float> kps;
 };
 
 void DrawObjects(const cv::Mat &image,
@@ -30,6 +89,13 @@ void DrawObjectsMasks(const cv::Mat &image,
                         const std::vector<std::string> &CLASS_NAMES,
                         const std::vector<std::vector<unsigned int>> &COLORS,
                         const std::vector<std::vector<unsigned int>> &MASK_COLORS);
+
+void DrawObjectsKps(const cv::Mat&                                image,
+                    cv::Mat&                                      res,
+                    const std::vector<Object>&                    objs,
+                    const std::vector<std::vector<unsigned int>>& SKELETON,
+                    const std::vector<std::vector<unsigned int>>& KPS_COLORS,
+                    const std::vector<std::vector<unsigned int>>& LIMB_COLORS);
 
 void DrawBoxes(const cv::Mat &image,
                   cv::Mat &res,

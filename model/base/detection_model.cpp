@@ -86,6 +86,63 @@ void DrawObjectsMasks(const cv::Mat &image,
     cv::addWeighted(res, 0.5, mask, 0.8, 1, res);
 }
 
+void DrawObjectsKps(const cv::Mat&                                image,
+                    cv::Mat&                                      res,
+                    const std::vector<Object>&                    objs,
+                    const std::vector<std::vector<unsigned int>>& SKELETON,
+                    const std::vector<std::vector<unsigned int>>& KPS_COLORS,
+                    const std::vector<std::vector<unsigned int>>& LIMB_COLORS)
+{
+    res                 = image.clone();
+    const int num_point = 17;
+    for (auto& obj : objs) {
+        cv::rectangle(res, obj.rect, {0, 0, 255}, 2);
+
+        char text[256];
+        sprintf(text, "person %.1f%%", obj.prob * 100);
+
+        int      baseLine   = 0;
+        cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.4, 1, &baseLine);
+
+        int x = (int)obj.rect.x;
+        int y = (int)obj.rect.y + 1;
+
+        if (y > res.rows)
+            y = res.rows;
+
+        cv::rectangle(res, cv::Rect(x, y, label_size.width, label_size.height + baseLine), {0, 0, 255}, -1);
+
+        cv::putText(res, text, cv::Point(x, y + label_size.height), cv::FONT_HERSHEY_SIMPLEX, 0.4, {255, 255, 255}, 1);
+
+        auto& kps = obj.kps;
+        for (int k = 0; k < num_point + 2; k++) {
+            if (k < num_point) {
+                int   kps_x = std::round(kps[k * 3]);
+                int   kps_y = std::round(kps[k * 3 + 1]);
+                float kps_s = kps[k * 3 + 2];
+                if (kps_s > 0.5f) {
+                    cv::Scalar kps_color = cv::Scalar(KPS_COLORS[k][0], KPS_COLORS[k][1], KPS_COLORS[k][2]);
+                    cv::circle(res, {kps_x, kps_y}, 5, kps_color, -1);
+                }
+            }
+            auto& ske    = SKELETON[k];
+            int   pos1_x = std::round(kps[(ske[0] - 1) * 3]);
+            int   pos1_y = std::round(kps[(ske[0] - 1) * 3 + 1]);
+
+            int pos2_x = std::round(kps[(ske[1] - 1) * 3]);
+            int pos2_y = std::round(kps[(ske[1] - 1) * 3 + 1]);
+
+            float pos1_s = kps[(ske[0] - 1) * 3 + 2];
+            float pos2_s = kps[(ske[1] - 1) * 3 + 2];
+
+            if (pos1_s > 0.5f && pos2_s > 0.5f) {
+                cv::Scalar limb_color = cv::Scalar(LIMB_COLORS[k][0], LIMB_COLORS[k][1], LIMB_COLORS[k][2]);
+                cv::line(res, {pos1_x, pos1_y}, {pos2_x, pos2_y}, limb_color, 2);
+            }
+        }
+    }
+}
+
 void DrawBoxes(const cv::Mat &image,
                   cv::Mat &res,
                   const std::vector<Object> &objs) {

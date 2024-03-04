@@ -13,10 +13,10 @@ target_include_directories(yolo_seg PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} $
 target_link_libraries(yolo_seg base_model yaml-cpp)
 target_link_libraries(yolo_seg ${OpenCV_LIBS})
 
-# add_library(yolo_end2end SHARED ${CMAKE_CURRENT_SOURCE_DIR}/yolo/yolo_e2e.cpp ${CMAKE_CURRENT_SOURCE_DIR}/base/detection_model.cpp)
-# target_include_directories(yolo_end2end PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
-# target_link_libraries(yolo_end2end base_model yaml-cpp)
-# target_link_libraries(yolo_end2end ${OpenCV_LIBS})
+add_library(yolo_pose SHARED ${CMAKE_CURRENT_SOURCE_DIR}/yolo/yolo_pose.cpp ${CMAKE_CURRENT_SOURCE_DIR}/base/detection_model.cpp)
+target_include_directories(yolo_pose PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
+target_link_libraries(yolo_pose base_model yaml-cpp)
+target_link_libraries(yolo_pose ${OpenCV_LIBS})
 
 add_library(yolo_det SHARED ${CMAKE_CURRENT_SOURCE_DIR}/yolo/yolo.cpp ${CMAKE_CURRENT_SOURCE_DIR}/base/detection_model.cpp)
 target_include_directories(yolo_det PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})

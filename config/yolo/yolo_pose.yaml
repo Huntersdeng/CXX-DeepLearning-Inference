@@ -1,0 +1,7 @@
+model_name: "yolo_pose"
+model_path: "../weights/yolo/yolov8s-pose.onnx"
+framework: "ONNX"
+# framework: "TensorRT"
+input_size: [640,640]
+conf_thres: 0.25
+nms_thres: 0.65
