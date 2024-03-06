@@ -18,8 +18,8 @@ MaskDecoder::MaskDecoder(const std::string &yaml_file) : features_shape{1, 256, 
     config_.input_len["mask_input"] = 1 * 1 * 256 * 256;
     config_.input_len["has_mask_input"] = 1;
 
-    config_.output_len["iou_predictions"] = -1;
-    config_.output_len["low_res_masks"] = -1;
+    config_.output_len["iou_predictions"] = 1 * 4;
+    config_.output_len["low_res_masks"] = 1 * 4 * 256 * 256;
     config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {

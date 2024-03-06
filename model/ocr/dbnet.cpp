@@ -126,11 +126,12 @@ DBNet::DBNet(const std::string &yaml_file) {
     std::string framework_type = yaml_node["framework"].as<std::string>();
 
     m_box_thres_ = yaml_node["box_thres"].as<float>();
+    std::vector<long> max_input_size = yaml_node["max_input_size"].as<std::vector<long>>();
 
     if (!Init(model_path, framework_type)) exit(0);
 
-    config_.input_len["images"] = -1;
-    config_.output_len["output"] = -1;
+    config_.input_len["images"] = max_input_size[0] * max_input_size[1] * max_input_size[2] * max_input_size[3];
+    config_.output_len["output"] = max_input_size[0] * 2 * max_input_size[2] * max_input_size[3];
     config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {

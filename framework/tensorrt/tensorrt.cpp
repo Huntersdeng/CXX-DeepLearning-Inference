@@ -91,11 +91,14 @@ Status TensorRTFramework::Init(Config config) {
             this->num_inputs += 1;
             dims = this->engine->getProfileShape(name.c_str(), 0, nvinfer1::OptProfileSelector::kMAX);
             binding.size = 1;
+            std::cout << binding.name << ": [";
             for (int i = 0; i < dims.nbDims; i++)
             {
+                std::cout << dims.d[i] << ",";
                 binding.size *= dims.d[i];
                 binding.dims.push_back(dims.d[i]);
             }
+            std::cout << "]" << std::endl;
             if (!is_dynamic && config.input_len[binding.name] != binding.size) {
                 std::cout << "Input size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                         << config.input_len[binding.name] << "!=" << binding.size << ")" << std::endl;
@@ -111,15 +114,21 @@ Status TensorRTFramework::Init(Config config) {
             out_index_[name] = this->num_outputs;
             dims = this->context->getTensorShape(name.c_str());
             binding.size = 1;
+            std::cout << binding.name << ": [";
             for (int i = 0; i < dims.nbDims; i++)
             {
+                std::cout << dims.d[i] << ",";
                 binding.size *= dims.d[i];
                 binding.dims.push_back(dims.d[i]);
             }
+            std::cout << "]" << std::endl;
             if (!is_dynamic && config.output_len[binding.name] != binding.size) {
                 std::cout << "Output size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
                         << config.output_len[binding.name] << "!=" << binding.size << ")" << std::endl;
                 return Status::INIT_ERROR;
+            }
+            if (is_dynamic) {
+                binding.size = config.output_len[binding.name];
             }
             this->output_bindings.push_back(binding);
             this->num_outputs += 1;

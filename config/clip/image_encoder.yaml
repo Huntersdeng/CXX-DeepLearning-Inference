@@ -3,3 +3,4 @@ model_path: "../weights/clip/clip_image_model_vitb32.onnx"
 framework: "ONNX"
 # model_path: "../weights/clip/clip_image_model_res18.engine"
 # framework: "TensorRT"
+max_batch_size: 2 

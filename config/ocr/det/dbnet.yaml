@@ -3,3 +3,4 @@ model_path: "../weights/ocr/DBNet.onnx"
 framework: "ONNX"
 # framework: "TensorRT"
 box_thres: 0.5
+max_input_size: [1, 3, 1440, 1440]

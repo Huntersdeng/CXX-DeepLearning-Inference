@@ -10,11 +10,12 @@ ImageEncoder::ImageEncoder(const std::string &yaml_file) : m_input_size_(224, 22
 
     std::string model_path = yaml_node["model_path"].as<std::string>();
     std::string framework_type = yaml_node["framework"].as<std::string>();
+    int max_batch_size = yaml_node["max_batch_size"].as<int>();
 
     if (!Init(model_path, framework_type)) exit(0);
 
-    config_.input_len["IMAGE"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["IMAGE_EMBEDDING"] = m_output_size_;
+    config_.input_len["IMAGE"] = max_batch_size * 3 * m_input_size_.height * m_input_size_.width;
+    config_.output_len["IMAGE_EMBEDDING"] = max_batch_size * m_output_size_;
     config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
@@ -55,13 +56,13 @@ void ImageEncoder::forward(const std::vector<cv::Mat> &images, IOTensor& feature
     std::unordered_map<std::string, IOTensor> input, output;
 
     input["IMAGE"] = IOTensor();
-    input["IMAGE"].resize(images.size() * config_.input_len["IMAGE"] * sizeof(float));
+    input["IMAGE"].resize(images.size() * 3 * m_input_size_.height * m_input_size_.width * sizeof(float));
     input["IMAGE"].shape = std::vector<int64_t>{static_cast<int64_t>(images.size()), 3, m_input_size_.height, m_input_size_.width};
     auto ptr = input["IMAGE"].data();
     for (const auto& image: images) {
         cv::Mat nchw;
         preprocess(image, nchw);
-        assert(nchw.total() * nchw.elemSize() == config_.input_len["IMAGE"] * sizeof(float));
+        assert(nchw.total() * nchw.elemSize() == 3 * m_input_size_.height * m_input_size_.width * sizeof(float));
         memcpy(ptr, nchw.ptr<uint8_t>(), nchw.total() * nchw.elemSize());
         ptr += nchw.total() * nchw.elemSize();
     }

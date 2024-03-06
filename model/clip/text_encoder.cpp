@@ -15,8 +15,8 @@ TextEncoder::TextEncoder(const std::string &yaml_file) : m_input_size_(77), m_ou
 
     if (!Init(model_path, framework_type)) exit(0);
 
-    config_.input_len["TEXT"] = m_input_size_;
-    config_.output_len["TEXT_EMBEDDING"] = m_output_size_;
+    config_.input_len["TEXT"] = 2 * m_input_size_;
+    config_.output_len["TEXT_EMBEDDING"] = 2 * m_output_size_;
     config_.is_dynamic = true;
     Status status = framework_->Init(config_);
     if (status != Status::SUCCESS) {
@@ -50,9 +50,9 @@ void TextEncoder::forward(const std::vector<std::string> &texts, IOTensor &featu
     preprocess(texts, input["TEXT"]);
 
     output["TEXT_EMBEDDING"] = IOTensor();
-    output["TEXT_EMBEDDING"].resize(texts.size() * config_.output_len["TEXT_EMBEDDING"] * sizeof(float));
+    output["TEXT_EMBEDDING"].resize(texts.size() * m_output_size_ * sizeof(float));
     output["TEXT_EMBEDDING"].shape =
-        std::vector<int64_t>{static_cast<int64_t>(texts.size()), config_.output_len["TEXT_EMBEDDING"]};
+        std::vector<int64_t>{static_cast<int64_t>(texts.size()), static_cast<int64_t>(m_output_size_)};
     output["TEXT_EMBEDDING"].data_type = DataType::FP32;
 
     this->framework_->forward(input, output);
