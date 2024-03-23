@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
 option(USE_TENSORRT "Compile tensorrt framework" ON)
+option(USE_TENSORRT "Compile rknn framework" OFF)
 message(STATUS "USE_TENSORRT: ${USE_TENSORRT}\n")
+message(STATUS "USE_RKNN: ${USE_RKNN}\n")
 
 if(USE_TENSORRT)
   set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86)
@@ -48,15 +50,21 @@ if(USE_TENSORRT)
 
   list(APPEND INCLUDE_DIRS
           ${CUDA_INCLUDE_DIRS}
-          ${OpenCV_INCLUDE_DIRS}
           ${TensorRT_INCLUDE_DIRS}
           )
-  
-else()
+endif()
+
+if (USE_RKNN)
+  set(RKNN_INCLUDE_DIRS /usr/include)
+  set(RKNN_LIBS /usr/lib/librknnrt.so)
   list(APPEND INCLUDE_DIRS
+          ${RKNN_INCLUDE_DIRS}
+          )
+endif()
+
+list(APPEND INCLUDE_DIRS
   ${OpenCV_INCLUDE_DIRS}
   )
-endif()
 
 set(ONNXRUNTIME_LIBS /usr/lib/libonnxruntime.so)
 
