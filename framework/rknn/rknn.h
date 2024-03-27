@@ -9,6 +9,16 @@
 
 int TypeToSize(const rknn_tensor_type &dataType);
 
+float sigmoid(float x);
+
+float unsigmoid(float y);
+
+float deqntAffineToF32(int8_t qnt, int32_t zp, float scale);
+
+int32_t __clip(float val, float min, float max);
+
+int8_t qntF32ToAffine(float f32, int32_t zp, float scale);
+
 class RknnFramework : public BaseFramework {
    public:
     RknnFramework() {}

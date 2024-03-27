@@ -15,6 +15,10 @@ bool Model::Init(const std::string &model_path, const std::string &framework_typ
     {
         framework_ = std::make_shared<ONNXFramework>();
     }
+    else if (framework_type == "RKNN")
+    {
+        framework_ = std::make_shared<RknnFramework>();
+    }
     else
     {
         std::cout << "Framework " << framework_type << " not implemented" <<std::endl;

@@ -57,6 +57,10 @@ ${tensorrt-install-path}/bin/trtexec
 --saveEngine=save-path \
 --fp16
 ```
+
+### RKNN
+See [airockchip/rknn-model-zoo](https://github.com/airockchip/rknn_model_zoo)
+
 ## Inference
 ### Build
 ```
@@ -89,6 +93,19 @@ conf_thres: 0.25
 nms_thres: 0.65
 seg_size: [160, 160]
 seg_channels: 32
+```
+#### Segment-Cutoff
+```
+model_name: "yolo_seg"
+model_path: "../weights/yolo/yolov8s-seg.rknn"
+framework: "RKNN"
+input_size: [640,640]
+conf_thres: 0.25
+nms_thres: 0.65
+seg_size: [160, 160]
+seg_channels: 32
+class_num: 80
+topk: 100
 ```
 
 #### Pose

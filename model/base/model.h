@@ -8,6 +8,10 @@
     #include "framework/tensorrt/tensorrt.h"
 #endif
 
+#ifdef USE_RKNN
+    #include "framework/rknn/rknn.h"
+#endif
+
 class Model
 {
 public:

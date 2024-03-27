@@ -1,6 +1,6 @@
 add_executable(yolo_test ${CMAKE_CURRENT_SOURCE_DIR}/yolo_test.cpp)
 target_include_directories(yolo_test PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
-target_link_libraries(yolo_test PUBLIC yolo_det yolo_seg yolo_pose)
+target_link_libraries(yolo_test PUBLIC yolo_det yolo_seg yolo_pose yolo_seg_cutoff)
 target_link_directories(yolo_test PUBLIC ${TensorRT_LIBRARIES} ${OpenCV_LIBS} ${ONNXRUNTIME_LIBS})
 
 add_executable(ocr_test ${CMAKE_CURRENT_SOURCE_DIR}/ocr_test.cpp)

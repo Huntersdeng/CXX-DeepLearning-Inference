@@ -4,8 +4,9 @@
 #include "model/yolo/yolo_seg.h"
 #include "model/yolo/yolo_pose.h"
 #include "model/yolo/yolo.h"
+#include "model/yolo/yolo_seg_cutoff.h"
 
-void Yolov8DetTest() {
+void YOLODetTest() {
     std::string current_path = "../";
     std::string yaml_file = current_path + "config/yolo/yolo.yaml";
 
@@ -39,7 +40,7 @@ void Yolov8DetTest() {
     }
 }
 
-void Yolov8SegTest() {
+void YOLOSegTest() {
     std::string current_path = "../";
     std::string yaml_file = current_path + "config/yolo/yolo_seg.yaml";
 
@@ -73,7 +74,41 @@ void Yolov8SegTest() {
     }
 }
 
-void Yolov8PoseTest() {
+void YOLOSegCutoffTest() {
+    std::string current_path = "../";
+    std::string yaml_file = current_path + "config/yolo/yolo_seg_cutoff.yaml";
+
+    YOLOSegCutoff model(yaml_file);
+
+    std::vector<std::string> imagePathList;
+    std::string input_path = current_path + "test/image/detect"; 
+    std::string output_path = current_path + "output/yolo/segment";
+    cv::glob(input_path + "/*.jpg", imagePathList);
+
+    cv::Mat image, input_image, res;
+    std::vector<Object> objs;
+
+    std::vector<std::string> class_names;
+    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
+
+    for (auto& path : imagePathList) {
+        objs.clear();
+        std::cout << path << std::endl;
+        image = cv::imread(path);
+        cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
+        model.detect(input_image, objs);
+        DrawObjectsMasks(image, res, objs, class_names, COLORS, MASK_COLORS);
+
+        std::string::size_type iPos = path.find_last_of('/') + 1;
+	    std::string filename = path.substr(iPos, path.length() - iPos);
+        std::string out_path = output_path + "/" + filename;
+        // cv::imshow("image", res);
+        // cv::waitKey(0);
+        cv::imwrite(out_path, res);
+    }
+}
+
+void YOLOPoseTest() {
     std::string current_path = "../";
     std::string yaml_file = current_path + "config/yolo/yolo_pose.yaml";
 
@@ -108,7 +143,8 @@ void Yolov8PoseTest() {
 }
 
 int main() {
-    Yolov8DetTest();
-    Yolov8SegTest();
-    Yolov8PoseTest();
+    // YOLODetTest();
+    // YOLOSegTest();
+    // YOLOPoseTest();
+    YOLOSegCutoffTest();
 }

@@ -53,6 +53,23 @@ int TypeToSize(const rknn_tensor_type& dataType) {
     }
 }
 
+int32_t __clip(float val, float min, float max) {
+    float f = val <= min ? min : (val >= max ? max : val);
+    return f;
+}
+
+float sigmoid(float x) { return 1.0 / (1.0 + expf(-x)); }
+
+float unsigmoid(float y) { return -1.0 * logf((1.0 / y) - 1.0); }
+
+int8_t qntF32ToAffine(float f32, int32_t zp, float scale) {
+    float dst_val = (f32 / scale) + zp;
+    int8_t res = (int8_t)__clip(dst_val, -128, 127);
+    return res;
+}
+
+float deqntAffineToF32(int8_t qnt, int32_t zp, float scale) { return ((float)qnt - (float)zp) * scale; }
+
 Status RknnFramework::Init(Config config) {
     is_dynamic = config.is_dynamic;
     int ret;
@@ -105,6 +122,7 @@ Status RknnFramework::Init(Config config) {
         binding.size = input_attrs[i].n_elems;
         binding.dsize = TypeToSize(input_attrs[i].type);
         binding.dims = std::vector<int64_t>{input_attrs[i].dims[0], input_attrs[i].dims[1], input_attrs[i].dims[2], input_attrs[i].dims[3]};
+        input_bindings.push_back(binding);
         in_index_[binding.name] = i;
         if (!is_dynamic && config.input_len[binding.name] != binding.size) {
             std::cout << "Input size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
@@ -132,6 +150,7 @@ Status RknnFramework::Init(Config config) {
         binding.size = output_attrs[i].n_elems;
         binding.dsize = TypeToSize(output_attrs[i].type);
         binding.dims = std::vector<int64_t>{output_attrs[i].dims[0], output_attrs[i].dims[1], output_attrs[i].dims[2], output_attrs[i].dims[3]};
+        output_bindings.push_back(binding);
         out_index_[binding.name] = i;
         if (!is_dynamic && config.output_len[binding.name] != binding.size) {
             std::cout << "Output size of " << binding.name << " mismatch the model file " << config.model_path << ". ("
@@ -143,14 +162,14 @@ Status RknnFramework::Init(Config config) {
     // Set to context
     rknn_ctx = ctx;
 
-    if (output_attrs[0].qnt_type == RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC && output_attrs[0].type != RKNN_TENSOR_FLOAT16)
-    {
-        is_quant_ = true;
-    }
-    else
-    {
-        is_quant_ = false;
-    }
+    // if (output_attrs[0].qnt_type == RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC && output_attrs[0].type != RKNN_TENSOR_FLOAT16)
+    // {
+    //     is_quant_ = true;
+    // }
+    // else
+    // {
+    //     is_quant_ = false;
+    // }
 
     input_attrs_ = (rknn_tensor_attr *)malloc(io_num.n_input * sizeof(rknn_tensor_attr));
     memcpy(input_attrs_, input_attrs, io_num.n_input * sizeof(rknn_tensor_attr));
@@ -236,7 +255,7 @@ Status RknnFramework::forward(const std::unordered_map<std::string, IOTensor> &i
     for (int i = 0; i < output_bindings.size(); i++)
     {
         rknn_output_tensors[i].index = i;
-        rknn_output_tensors[i].want_float = (!is_quant_);
+        rknn_output_tensors[i].want_float = false;
     }
     ret = rknn_outputs_get(rknn_ctx, output_bindings.size(), rknn_output_tensors, NULL);
     if (ret < 0)
@@ -253,6 +272,8 @@ Status RknnFramework::forward(const std::unordered_map<std::string, IOTensor> &i
             return Status::INFERENCE_ERROR;
         }
         memcpy(kv.second.data(), rknn_output_tensors[idx].buf, kv.second.size());
+        kv.second.zp = output_attrs_[idx].zp;
+        kv.second.scale = output_attrs_[idx].scale;
     }
 
     return Status::SUCCESS;
