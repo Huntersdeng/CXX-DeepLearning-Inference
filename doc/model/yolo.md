@@ -59,7 +59,8 @@ ${tensorrt-install-path}/bin/trtexec
 ```
 
 ### RKNN
-See [airockchip/rknn-model-zoo](https://github.com/airockchip/rknn_model_zoo)
+- Pytorch to ONNX, see [airockchip/ultralytics_yolov8](https://github.com/airockchip/ultralytics_yolov8) 
+- ONNX to RKNN, see [airockchip/rknn-model-zoo](https://github.com/airockchip/rknn_model_zoo)
 
 ## Inference
 ### Build
