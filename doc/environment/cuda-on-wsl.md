@@ -13,14 +13,8 @@
 
 For Ubuntu 22.04
 ```
-sudo apt-key adv --fetch-keys https://mirrors.aliyun.com/nvidia-cuda/ubuntu2204/x86_64/3bf863cc.pub
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
 sudo sh -c 'echo "deb https://mirrors.aliyun.com/nvidia-cuda/ubuntu2204/x86_64 /" > /etc/apt/sources.list.d/cuda.list'
-```
-
-For Ubuntu 20.04
-```
-sudo apt-key adv --fetch-keys https://mirrors.aliyun.com/nvidia-cuda/ubuntu2004/x86_64/3bf863cc.pub
-sudo sh -c 'echo "deb https://mirrors.aliyun.com/nvidia-cuda/ubuntu2004/x86_64 /" > /etc/apt/sources.list.d/cuda.list'
 ```
 
 ### 安装
