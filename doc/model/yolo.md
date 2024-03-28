@@ -64,12 +64,12 @@ ${tensorrt-install-path}/bin/trtexec
 
 ## Inference
 ### Build
+Compile options:
+- USE_TENSORRT
+- USE_RKNN
 ```
 mkdir build && cd build
-# disable tensorrt
-cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=OFF
-# enable tensorrt
-cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=ON
+cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_TENSORRT=ON/OFF -DUSE_RKNN=ON/OFF 
 make
 ```
 ### Config
