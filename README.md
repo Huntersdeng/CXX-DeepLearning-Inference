@@ -21,6 +21,7 @@ A unified and extensible pipeline for deep learning model inference with C++.
 | YOLO  | YOLO-Det|       √     |   √      |      |
 |       | YOLO-Seg|       √     |   √      |      |
 |       | YOLO-Pose|       √     |   √      |      |
+|       | YOLO-Det-Cutoff |||       √     |
 |       | YOLO-Seg-Cutoff |||       √     | 
 |OCR    | CRNN    |       √     |   √      |      |
 |       | ABINet  |       √     |   √      |      |

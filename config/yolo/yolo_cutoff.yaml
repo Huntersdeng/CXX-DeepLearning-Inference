@@ -1,0 +1,8 @@
+model_name: "yolo_det"
+model_path: "../weights/yolo/yolov8n.rknn"
+framework: "RKNN"
+input_size: [640,640]
+conf_thres: 0.25
+nms_thres: 0.65
+class_num: 80
+topk: 100
