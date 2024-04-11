@@ -53,23 +53,6 @@ int TypeToSize(const rknn_tensor_type& dataType) {
     }
 }
 
-int32_t __clip(float val, float min, float max) {
-    float f = val <= min ? min : (val >= max ? max : val);
-    return f;
-}
-
-float sigmoid(float x) { return 1.0 / (1.0 + expf(-x)); }
-
-float unsigmoid(float y) { return -1.0 * logf((1.0 / y) - 1.0); }
-
-int8_t qntF32ToAffine(float f32, int32_t zp, float scale) {
-    float dst_val = (f32 / scale) + zp;
-    int8_t res = (int8_t)__clip(dst_val, -128, 127);
-    return res;
-}
-
-float deqntAffineToF32(int8_t qnt, int32_t zp, float scale) { return ((float)qnt - (float)zp) * scale; }
-
 Status RknnFramework::Init(Config config) {
     is_dynamic = config.is_dynamic;
     int ret;

@@ -1,4 +1,6 @@
 /.vscode/*
 /build/*
+/build-orin/*
+/build-rk/*
 /weights/*
 __pycache__

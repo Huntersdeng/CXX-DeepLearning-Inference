@@ -17,7 +17,12 @@ bool Model::Init(const std::string &model_path, const std::string &framework_typ
     }
     else if (framework_type == "RKNN")
     {
+    #ifdef USE_RKNN
         framework_ = std::make_shared<RknnFramework>();
+    #else
+        std::cout << "Framework " << framework_type << " not implemented" <<std::endl;
+        return false;
+    #endif
     }
     else
     {

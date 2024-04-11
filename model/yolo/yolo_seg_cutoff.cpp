@@ -45,25 +45,25 @@ YOLOSegCutoff::YOLOSegCutoff(const std::string &yaml_file) {
     m_class_num_ = yaml_node["class_num"].as<int>();
 
     config_.input_len["images"] = 3 * m_input_size_.height * m_input_size_.width;
-    config_.output_len["375"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]) * 64;
-    config_.output_len["onnx::ReduceSum_383"] =
+    config_.output_len["output0"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]) * 64;
+    config_.output_len["output1"] =
         (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]) * m_class_num_;
-    config_.output_len["388"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]);
-    config_.output_len["354"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]) * 32;
+    config_.output_len["output2"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]);
+    config_.output_len["output3"] = (m_input_size_.width / strides[0]) * (m_input_size_.height / strides[0]) * 32;
 
-    config_.output_len["395"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]) * 64;
-    config_.output_len["onnx::ReduceSum_403"] =
+    config_.output_len["output4"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]) * 64;
+    config_.output_len["output5"] =
         (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]) * m_class_num_;
-    config_.output_len["407"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]);
-    config_.output_len["361"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]) * 32;
+    config_.output_len["output6"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]);
+    config_.output_len["output7"] = (m_input_size_.width / strides[1]) * (m_input_size_.height / strides[1]) * 32;
 
-    config_.output_len["414"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]) * 64;
-    config_.output_len["onnx::ReduceSum_422"] =
+    config_.output_len["output8"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]) * 64;
+    config_.output_len["output9"] =
         (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]) * m_class_num_;
-    config_.output_len["426"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]);
-    config_.output_len["368"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]) * 32;
+    config_.output_len["output10"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]);
+    config_.output_len["output11"] = (m_input_size_.width / strides[2]) * (m_input_size_.height / strides[2]) * 32;
 
-    config_.output_len["347"] = m_seg_channels_ * m_seg_size_.width * m_seg_size_.height;
+    config_.output_len["proto"] = m_seg_channels_ * m_seg_size_.width * m_seg_size_.height;
 
     config_.is_dynamic = false;
     Status status = framework_->Init(config_);
@@ -92,82 +92,82 @@ void YOLOSegCutoff::detect(const cv::Mat &image, std::vector<Object> &objs) {
     memcpy(input["images"].data(), input_img.ptr<uint8_t>(), input_img.total() * input_img.elemSize());
 
     // 输出张量设置
-    output["375"] = IOTensor();
-    output["375"].resize(config_.output_len["375"] * sizeof(uint8_t));
-    output["375"].shape =
+    output["output0"] = IOTensor();
+    output["output0"].resize(config_.output_len["output0"] * sizeof(uint8_t));
+    output["output0"].shape =
         std::vector<int64_t>{1, 64, m_input_size_.height / strides[0], m_input_size_.width / strides[0]};
-    output["375"].data_type = DataType::INT8;
+    output["output0"].data_type = DataType::INT8;
 
-    output["onnx::ReduceSum_383"] = IOTensor();
-    output["onnx::ReduceSum_383"].resize(config_.output_len["onnx::ReduceSum_383"] * sizeof(uint8_t));
-    output["onnx::ReduceSum_383"].shape =
+    output["output1"] = IOTensor();
+    output["output1"].resize(config_.output_len["output1"] * sizeof(uint8_t));
+    output["output1"].shape =
         std::vector<int64_t>{1, m_class_num_, m_input_size_.height / strides[0], m_input_size_.width / strides[0]};
-    output["onnx::ReduceSum_383"].data_type = DataType::INT8;
+    output["output1"].data_type = DataType::INT8;
 
-    output["388"] = IOTensor();
-    output["388"].resize(config_.output_len["388"] * sizeof(uint8_t));
-    output["388"].shape =
+    output["output2"] = IOTensor();
+    output["output2"].resize(config_.output_len["output2"] * sizeof(uint8_t));
+    output["output2"].shape =
         std::vector<int64_t>{1, 1, m_input_size_.height / strides[0], m_input_size_.width / strides[0]};
-    output["388"].data_type = DataType::INT8;
+    output["output2"].data_type = DataType::INT8;
 
-    output["354"] = IOTensor();
-    output["354"].resize(config_.output_len["354"] * sizeof(uint8_t));
-    output["354"].shape =
+    output["output3"] = IOTensor();
+    output["output3"].resize(config_.output_len["output3"] * sizeof(uint8_t));
+    output["output3"].shape =
         std::vector<int64_t>{1, 32, m_input_size_.height / strides[0], m_input_size_.width / strides[0]};
-    output["354"].data_type = DataType::INT8;
+    output["output3"].data_type = DataType::INT8;
 
-    output["395"] = IOTensor();
-    output["395"].resize(config_.output_len["395"] * sizeof(uint8_t));
-    output["395"].shape =
+    output["output4"] = IOTensor();
+    output["output4"].resize(config_.output_len["output4"] * sizeof(uint8_t));
+    output["output4"].shape =
         std::vector<int64_t>{1, 64, m_input_size_.height / strides[1], m_input_size_.width / strides[1]};
-    output["395"].data_type = DataType::INT8;
+    output["output4"].data_type = DataType::INT8;
 
-    output["onnx::ReduceSum_403"] = IOTensor();
-    output["onnx::ReduceSum_403"].resize(config_.output_len["onnx::ReduceSum_403"] * sizeof(uint8_t));
-    output["onnx::ReduceSum_403"].shape =
+    output["output5"] = IOTensor();
+    output["output5"].resize(config_.output_len["output5"] * sizeof(uint8_t));
+    output["output5"].shape =
         std::vector<int64_t>{1, m_class_num_, m_input_size_.height / strides[1], m_input_size_.width / strides[1]};
-    output["onnx::ReduceSum_403"].data_type = DataType::INT8;
+    output["output5"].data_type = DataType::INT8;
 
-    output["407"] = IOTensor();
-    output["407"].resize(config_.output_len["407"] * sizeof(uint8_t));
-    output["407"].shape =
+    output["output6"] = IOTensor();
+    output["output6"].resize(config_.output_len["output6"] * sizeof(uint8_t));
+    output["output6"].shape =
         std::vector<int64_t>{1, 1, m_input_size_.height / strides[1], m_input_size_.width / strides[1]};
-    output["407"].data_type = DataType::INT8;
+    output["output6"].data_type = DataType::INT8;
 
-    output["361"] = IOTensor();
-    output["361"].resize(config_.output_len["361"] * sizeof(uint8_t));
-    output["361"].shape =
+    output["output7"] = IOTensor();
+    output["output7"].resize(config_.output_len["output7"] * sizeof(uint8_t));
+    output["output7"].shape =
         std::vector<int64_t>{1, 32, m_input_size_.height / strides[1], m_input_size_.width / strides[1]};
-    output["361"].data_type = DataType::INT8;
+    output["output7"].data_type = DataType::INT8;
 
-    output["414"] = IOTensor();
-    output["414"].resize(config_.output_len["414"] * sizeof(uint8_t));
-    output["414"].shape =
+    output["output8"] = IOTensor();
+    output["output8"].resize(config_.output_len["output8"] * sizeof(uint8_t));
+    output["output8"].shape =
         std::vector<int64_t>{1, 64, m_input_size_.height / strides[2], m_input_size_.width / strides[2]};
-    output["414"].data_type = DataType::INT8;
+    output["output8"].data_type = DataType::INT8;
 
-    output["onnx::ReduceSum_422"] = IOTensor();
-    output["onnx::ReduceSum_422"].resize(config_.output_len["onnx::ReduceSum_422"] * sizeof(uint8_t));
-    output["onnx::ReduceSum_422"].shape =
+    output["output9"] = IOTensor();
+    output["output9"].resize(config_.output_len["output9"] * sizeof(uint8_t));
+    output["output9"].shape =
         std::vector<int64_t>{1, m_class_num_, m_input_size_.height / strides[2], m_input_size_.width / strides[2]};
-    output["onnx::ReduceSum_422"].data_type = DataType::INT8;
+    output["output9"].data_type = DataType::INT8;
 
-    output["426"] = IOTensor();
-    output["426"].resize(config_.output_len["426"] * sizeof(uint8_t));
-    output["426"].shape =
+    output["output10"] = IOTensor();
+    output["output10"].resize(config_.output_len["output10"] * sizeof(uint8_t));
+    output["output10"].shape =
         std::vector<int64_t>{1, 1, m_input_size_.height / strides[2], m_input_size_.width / strides[2]};
-    output["426"].data_type = DataType::INT8;
+    output["output10"].data_type = DataType::INT8;
 
-    output["368"] = IOTensor();
-    output["368"].resize(config_.output_len["368"] * sizeof(uint8_t));
-    output["368"].shape =
+    output["output11"] = IOTensor();
+    output["output11"].resize(config_.output_len["output11"] * sizeof(uint8_t));
+    output["output11"].shape =
         std::vector<int64_t>{1, 32, m_input_size_.height / strides[2], m_input_size_.width / strides[2]};
-    output["368"].data_type = DataType::INT8;
+    output["output11"].data_type = DataType::INT8;
 
-    output["347"] = IOTensor();
-    output["347"].resize(config_.output_len["347"] * sizeof(uint8_t));
-    output["347"].shape = std::vector<int64_t>{1, m_seg_channels_, m_seg_size_.height, m_seg_size_.width};
-    output["347"].data_type = DataType::INT8;
+    output["proto"] = IOTensor();
+    output["proto"].resize(config_.output_len["proto"] * sizeof(uint8_t));
+    output["proto"].shape = std::vector<int64_t>{1, m_seg_channels_, m_seg_size_.height, m_seg_size_.width};
+    output["proto"].data_type = DataType::INT8;
 
     // start = std::chrono::system_clock::now();
     this->framework_->forward(input, output);
@@ -203,23 +203,23 @@ void YOLOSegCutoff::postprocess(const std::unordered_map<std::string, IOTensor> 
 
     int validCount = 0;
 
-    int dfl_len = output.at("375").shape[1] / 4;
+    int dfl_len = output.at("output0").shape[1] / 4;
     int grid[3][2] = {{m_input_size_.height / strides[0], m_input_size_.width / strides[0]},
                       {m_input_size_.height / strides[1], m_input_size_.width / strides[1]},
                       {m_input_size_.height / strides[2], m_input_size_.width / strides[2]}};
 
     // process the outputs of rknn
 
-    validCount += decodeBoxes(output.at("375"), output.at("onnx::ReduceSum_383"), output.at("388"), output.at("354"),
+    validCount += decodeBoxes(output.at("output0"), output.at("output1"), output.at("output2"), output.at("output3"),
                               grid[0][0], grid[0][1], input_h, input_w, strides[0], dfl_len, bboxes, filterSegments,
                               scores, labels, m_conf_thres_);
-    validCount += decodeBoxes(output.at("395"), output.at("onnx::ReduceSum_403"), output.at("407"), output.at("361"),
+    validCount += decodeBoxes(output.at("output4"), output.at("output5"), output.at("output6"), output.at("output7"),
                               grid[1][0], grid[1][1], input_h, input_w, strides[1], dfl_len, bboxes, filterSegments,
                               scores, labels, m_conf_thres_);
-    validCount += decodeBoxes(output.at("414"), output.at("onnx::ReduceSum_422"), output.at("426"), output.at("368"),
+    validCount += decodeBoxes(output.at("output8"), output.at("output9"), output.at("output10"), output.at("output11"),
                               grid[2][0], grid[2][1], input_h, input_w, strides[2], dfl_len, bboxes, filterSegments,
                               scores, labels, m_conf_thres_);
-    decodeMask(output.at("347"), protos);
+    decodeMask(output.at("proto"), protos);
 
     // nms
     if (validCount <= 0) {

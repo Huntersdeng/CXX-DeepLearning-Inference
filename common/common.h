@@ -37,3 +37,13 @@ bool IsFolder(const std::string &path);
 PreParam Letterbox(const cv::Mat &image, cv::Mat &out, cv::Size size);
 
 PreParam paddimg(const cv::Mat &image, cv::Mat &out, int shortsize = 960);
+
+float sigmoid(float x);
+
+float unsigmoid(float y);
+
+float deqntAffineToF32(int8_t qnt, int32_t zp, float scale);
+
+int32_t __clip(float val, float min, float max);
+
+int8_t qntF32ToAffine(float f32, int32_t zp, float scale);

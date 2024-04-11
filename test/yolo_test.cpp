@@ -102,7 +102,12 @@ void YOLOSegTest() {
         std::cout << path << std::endl;
         image = cv::imread(path);
         cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
+
+        auto start = std::chrono::system_clock::now();
         model.detect(input_image, objs);
+        auto end = std::chrono::system_clock::now();
+        std::cout << "Costs: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+        
         DrawObjectsMasks(image, res, objs, class_names, COLORS, MASK_COLORS);
 
         std::string::size_type iPos = path.find_last_of('/') + 1;
@@ -191,6 +196,6 @@ int main() {
     // YOLODetTest();
     // YOLOSegTest();
     // YOLOPoseTest();
-    YOLODetCutoffTest();
-    // YOLOSegCutoffTest();
+    // YOLODetCutoffTest();
+    YOLOSegCutoffTest();
 }
