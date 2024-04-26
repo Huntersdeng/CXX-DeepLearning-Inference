@@ -44,7 +44,7 @@ YOLOPose::~YOLOPose()
 void YOLOPose::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
     cv::Mat mask;
     this->pparam_ = Letterbox(input_image, mask, m_input_size_);
-    cv::dnn::blobFromImage(mask, output_image, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), true, false, CV_32F);
+    cv::dnn::blobFromImage(mask, output_image, 1 / 255.f, cv::Size(), cv::Scalar(0, 0, 0), false, false, CV_32F);
 }
 
 void YOLOPose::detect(const cv::Mat &image, std::vector<Object> &objs)

@@ -150,7 +150,7 @@ void DBNet::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
     // std value [0.225, 0.225, 0.225] * 255
     cv::Mat mask;
     this->pparam_ = paddimg(input_image, mask, 640);
-    cv::dnn::blobFromImage(mask, output_image, 1 / 57.375, cv::Size(), cv::Scalar(103.53f, 116.28f, 123.675f), true, false, CV_32F);
+    cv::dnn::blobFromImage(mask, output_image, 1 / 57.375, cv::Size(), cv::Scalar(103.53f, 116.28f, 123.675f), false, false, CV_32F);
 }
 
 void DBNet::detect(const cv::Mat &image, std::vector<Object> &objs) {

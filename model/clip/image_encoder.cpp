@@ -49,7 +49,7 @@ void ImageEncoder::preprocess(const cv::Mat &input_image, cv::Mat &output_image)
 
     cv::Scalar mean(0.48145466*255, 0.4578275*255, 0.40821073*255);
     float std = (0.26862954 + 0.26130258 + 0.27577711) / 3 * 255;
-    cv::dnn::blobFromImage(resized_img, output_image, 1 / std, cv::Size(), cv::Scalar(), true, false, CV_32F);
+    cv::dnn::blobFromImage(resized_img, output_image, 1 / std, cv::Size(), cv::Scalar(), false, false, CV_32F);
 }
 
 void ImageEncoder::forward(const std::vector<cv::Mat> &images, IOTensor& features) {

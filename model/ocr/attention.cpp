@@ -7,7 +7,7 @@ std::string AttnModel::detect(const cv::Mat &image) {
 
     // 输入tensor设置
     cv::Mat nchw;
-    cv::dnn::blobFromImage(image, nchw, 1 / 64.f, m_input_size_, cv::Scalar(127.5, 127.5, 127.5), true, false, CV_32F);
+    cv::dnn::blobFromImage(image, nchw, 1 / 64.f, m_input_size_, cv::Scalar(127.5, 127.5, 127.5), false, false, CV_32F);
 
     input["images"] = IOTensor();
     input["images"].shape = std::vector<int64_t>{1, static_cast<int64_t>(m_input_channel_), m_input_size_.height, m_input_size_.width};

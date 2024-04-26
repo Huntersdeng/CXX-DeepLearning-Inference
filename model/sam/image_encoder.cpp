@@ -27,7 +27,7 @@ ImageEncoder::~ImageEncoder() {
 }
 
 void ImageEncoder::preprocess(const cv::Mat &input_image, cv::Mat &output_image) {
-    cv::dnn::blobFromImage(input_image, output_image, 1 / 57.f, cv::Size(), cv::Scalar(123.675, 116.28, 103.53), true, false, CV_32F);
+    cv::dnn::blobFromImage(input_image, output_image, 1 / 57.f, cv::Size(), cv::Scalar(123.675, 116.28, 103.53), false, false, CV_32F);
 }
 
 void ImageEncoder::forward(const cv::Mat &image, IOTensor& features) {

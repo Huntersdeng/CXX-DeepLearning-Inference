@@ -95,7 +95,7 @@ void YOLOSegTest() {
     std::vector<Object> objs;
 
     std::vector<std::string> class_names;
-    ReadClassNames(current_path + "config/yolo/coco.txt", class_names);
+    ReadClassNames(current_path + "config/yolo/stardust.txt", class_names);
 
     for (auto& path : imagePathList) {
         objs.clear();
@@ -194,8 +194,8 @@ void YOLOPoseTest() {
 
 int main() {
     // YOLODetTest();
-    // YOLOSegTest();
+    YOLOSegTest();
     // YOLOPoseTest();
     // YOLODetCutoffTest();
-    YOLOSegCutoffTest();
+    // YOLOSegCutoffTest();
 }
