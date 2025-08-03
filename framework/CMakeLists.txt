@@ -1,4 +1,4 @@
-configure_file(../common/config.h.in config.h)
+configure_file(config.h.in config.h)
 
 if(USE_TENSORRT)
   add_library(framework_trt SHARED ${CMAKE_SOURCE_DIR}/common/common.cpp 

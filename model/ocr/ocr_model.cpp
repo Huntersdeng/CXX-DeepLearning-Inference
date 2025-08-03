@@ -1,4 +1,4 @@
-#include "model/base/ocr_model.h"
+#include "ocr_model.h"
 #include <yaml-cpp/yaml.h>
 
 OcrModel::OcrModel(const std::string &yaml_file) {

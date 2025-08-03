@@ -4,14 +4,14 @@
 #include "model/clip/clip.h"
 
 void ModuleTest() {
-    clip::TextTokenizer tokenizer("/home/stardust/my_work/model-zoo-cxx/weights/clip/bpe_simple_vocab_16e6.txt.gz");
+    clip::TextTokenizer tokenizer("weights/clip/bpe_simple_vocab_16e6.txt.gz");
     std::vector<int> tokens = tokenizer.tokenize("a photo of a woman");
     for(int token : tokens) {
         std::cout << token << ",";
     }
     std::cout << std::endl;
 
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string image_encoder_cfg = current_path + "config/clip/image_encoder.yaml";
     std::string text_encoder_cfg = current_path + "config/clip/text_encoder.yaml";
 
@@ -133,7 +133,7 @@ void ModuleTest() {
 }
 
 void GetTextEmbeddings() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string text_encoder_cfg = current_path + "config/clip/text_encoder.yaml";
     clip::TextEncoder text_encoder(text_encoder_cfg);
 
@@ -173,15 +173,15 @@ void GetTextEmbeddings() {
 }
 
 void PipeLineTest() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string image_encoder_cfg = current_path + "config/clip/image_encoder.yaml";
     std::string text_encoder_cfg = current_path + "config/clip/text_encoder.yaml";
 
     clip::Clip clip_model(image_encoder_cfg, text_encoder_cfg);
 
     std::vector<cv::Mat> images;
-    images.push_back(cv::imread("../test/image/clip/franz-kafka.jpg"));
-    images.push_back(cv::imread("../test/image/clip/Mona_Lisa.jpg"));
+    images.push_back(cv::imread("./test/image/clip/franz-kafka.jpg"));
+    images.push_back(cv::imread("./test/image/clip/Mona_Lisa.jpg"));
     clip_model.encodeImages(images);
 
     std::vector<std::string> texts{"a photo of a man", "a photo of a woman"};

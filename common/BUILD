@@ -1,0 +1,9 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "common",
+    hdrs=["common.h"],
+    srcs=["common.cpp"],
+    deps=["@opencv//:opencv"],
+    visibility = ["//visibility:public"],
+)

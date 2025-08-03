@@ -1,5 +1,5 @@
 model_name: "abinet"
-model_path: "../weights/ocr/best-train-abinet.onnx"
+model_path: "./weights/ocr/best-train-abinet.onnx"
 framework: "ONNX"
 # framework: "TensorRT"
 input_size: [128,32]  # (width, height)

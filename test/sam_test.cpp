@@ -4,7 +4,7 @@
 #include "model/sam/sam.h"
 
 int main() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string encoder_cfg = current_path + "config/sam/image_encoder.yaml";
     std::string decoder_cfg = current_path + "config/sam/mask_decoder.yaml";
 
@@ -12,7 +12,7 @@ int main() {
 
     cv::Mat image, input_image;
 
-    image = cv::imread("../test/image/sam/dogs.jpg");
+    image = cv::imread("./test/image/sam/dogs.jpg");
     cv::cvtColor(image, input_image, cv::COLOR_BGR2RGB);
 
     sam_model.setImage(input_image);
@@ -31,5 +31,5 @@ int main() {
     cv::rectangle(res, cv::Rect(100, 100, 750, 659), {0, 0, 255}, 2);
     mask.setTo(cv::Scalar(255, 56, 56), output_mask);
     cv::addWeighted(res, 0.5, mask, 0.8, 1, res);
-    cv::imwrite("../output/sam/dogs.jpg", res);
+    cv::imwrite("./output/sam/dogs.jpg", res);
 }

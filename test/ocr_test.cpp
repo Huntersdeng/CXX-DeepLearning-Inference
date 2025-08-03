@@ -6,7 +6,7 @@
 #include "model/ocr/dbnet.h"
 
 void CtcModelTest() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string yaml_file = current_path + "config/ocr/rec/ctc.yaml";
 
     CtcModel model(yaml_file);
@@ -29,7 +29,7 @@ void CtcModelTest() {
 }
 
 void AttnModelTest() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string yaml_file = current_path + "config/ocr/rec/attn.yaml";
 
     AttnModel model(yaml_file);
@@ -52,7 +52,7 @@ void AttnModelTest() {
 }
 
 void DBNetTest() {
-    std::string current_path = "../";
+    std::string current_path = "./";
     std::string yaml_file = current_path + "config/ocr/det/dbnet.yaml";
 
     DBNet model(yaml_file);
@@ -83,7 +83,7 @@ void DBNetTest() {
 }
 
 int main() {
-    // CtcModelTest();
-    // AttnModelTest();
+    CtcModelTest();
+    AttnModelTest();
     DBNetTest();
 }

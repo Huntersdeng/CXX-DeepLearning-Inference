@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 
-#include "model/base/ocr_model.h"
+#include "ocr_model.h"
 
 class CtcModel : public OcrModel {
    public:

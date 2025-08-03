@@ -4,3 +4,5 @@
 /build-rk/*
 /weights/*
 __pycache__
+MODULE.bazel
+MODULE.bazel.lock

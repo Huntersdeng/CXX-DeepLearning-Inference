@@ -1,5 +1,5 @@
 model_name: "crnn"
-model_path: "../weights/ocr/crnn.onnx"
+model_path: "./weights/ocr/crnn.onnx"
 framework: "ONNX"
 # framework: "TensorRT"
 input_size: [100,32]  # (width, height)
