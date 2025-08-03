@@ -1,0 +1,44 @@
+"CXX-Deeplearning-Inference"
+module(name = "cxx-deeplearning-inference")
+
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "yaml-cpp", version = "0.8.0")
+bazel_dep(name = "zlib", version = "1.3.1.bcr.5")
+
+new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
+new_local_repository(
+    name = "opencv",
+    build_file = "@//third_party:opencv.BUILD",
+    path = "/usr/include",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "onnxruntime",
+    build_file = "//third_party:onnxruntime.BUILD",
+    sha256 = "70c769771ad4b6d63b87ca1f62d3f11e998ea0b9d738d6bbdd6a5e6d8c1deb31",
+    strip_prefix = "onnxruntime-linux-x64-1.16.2",
+    urls = [
+        "https://github.com/microsoft/onnxruntime/releases/download/v1.16.2/onnxruntime-linux-x64-1.16.2.tgz",
+    ],
+)
+http_archive(
+    name = "polyclipping",
+    build_file = "//third_party:polyclipping.BUILD",
+    sha256 = "c39c70a9d48364411b2424be5d6d3225f22a7245ecdef28f62a956fb09e075a6",
+    strip_prefix = "polyclipping-6.2.0/cpp",
+    urls = [
+        "https://github.com/bimpp/polyclipping/archive/refs/tags/6.2.0.zip",
+    ],
+)
+
+# Hedron's Compile Commands Extractor for Bazel
+# https://github.com/hedronvision/bazel-compile-commands-extractor
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
+    commit = "4f28899228fb3ad0126897876f147ca15026151e",
+    # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
+    # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
+)
