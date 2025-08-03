@@ -35,12 +35,12 @@ target_include_directories(yolo_det_cutoff PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE
 target_link_libraries(yolo_det_cutoff base_model yaml-cpp)
 target_link_libraries(yolo_det_cutoff ${OpenCV_LIBS})
 
-add_library(ctc SHARED ${CMAKE_CURRENT_SOURCE_DIR}/ocr/ctc.cpp ${CMAKE_CURRENT_SOURCE_DIR}/base/ocr_model.cpp)
+add_library(ctc SHARED ${CMAKE_CURRENT_SOURCE_DIR}/ocr/ctc.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ocr/ocr_model.cpp)
 target_include_directories(ctc PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 target_link_libraries(ctc base_model yaml-cpp)
 target_link_libraries(ctc ${OpenCV_LIBS})
 
-add_library(attn SHARED ${CMAKE_CURRENT_SOURCE_DIR}/ocr/attention.cpp ${CMAKE_CURRENT_SOURCE_DIR}/base/ocr_model.cpp)
+add_library(attn SHARED ${CMAKE_CURRENT_SOURCE_DIR}/ocr/attention.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ocr/ocr_model.cpp)
 target_include_directories(attn PUBLIC ${INCLUDE_DIRS} ${CMAKE_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 target_link_libraries(attn base_model yaml-cpp)
 target_link_libraries(attn ${OpenCV_LIBS})
